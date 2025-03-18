@@ -1,9 +1,7 @@
 import praw
 import time
+import pickle
 
-f = open("demofile2.txt", "a")
-f.write("Now the file has more content!")
-f.close()
 
 reddit_read_only = praw.Reddit(client_id="CYzoKYjkZSnH9r5vRUz8fw", #Jordan's client ID
                     client_secret="Reajfk_GmsByCj_GHsDR-hsKmQ96LQ", # Jordan's client secret
@@ -42,3 +40,6 @@ for thisThread in thread_urls:
 
 with open('tempDataset.txt', 'w', encoding='utf-8', errors='ignore') as f:
     f.write(str(comm_score_dict))
+
+with open("tempDataset.pkl", "wb") as file:
+    pickle.dump(comm_score_dict, file)
