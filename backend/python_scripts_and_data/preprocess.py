@@ -3,6 +3,7 @@ import os
 import numpy as np
 from numpy.typing import NDArray 
 from typing import Any
+from collections import OrderedDict
 
 def vocab_preprocess(): 
   vocab = []
@@ -22,7 +23,7 @@ def isolateFoodwords(vocab):
     for keyword in vocab: 
       if keyword in comm: 
         foodComm += str(keyword + ", ")
-    if foodComm != "":
+    # if foodComm != "":   temporary testing!
       foodComm_score_dict.update({foodComm: score}) 
   with open(os.path.join("data", "foodwords_score_dict.txt"), "w", encoding='utf-8', errors='ignore') as f: 
     f.write(str(foodComm_score_dict))

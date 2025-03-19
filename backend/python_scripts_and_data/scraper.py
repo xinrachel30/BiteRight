@@ -10,6 +10,7 @@ reddit_read_only = praw.Reddit(client_id="CYzoKYjkZSnH9r5vRUz8fw", #Jordan's cli
 thread_urls = []
 thread_urls.append("https://www.reddit.com/r/EatCheapAndHealthy/comments/oo8uyu/what_are_some_stupidly_easy_food_pairings_that_go/")
 thread_urls.append("https://www.reddit.com/r/Cooking/comments/oodevv/what_weird_food_combinations_have_you_been_served/?chainedPosts=t3_oo8uyu")
+thread_urls.append("https://www.reddit.com/r/AskReddit/comments/jgoc5b/what_food_pairing_sounds_absurd_but_tastes_fine/)
 
 #Get all comments regardless of nested structure of comment replies
 def getComments(ledger : dict[str,int], comments) -> dict[str,int]: 
