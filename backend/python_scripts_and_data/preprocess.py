@@ -22,8 +22,8 @@ for comm, score in comm_score_dict.items():
   if foodComm != "":
     foodComm_score_dict.update({foodComm: score}) 
 
-print(foodComm_score_dict)
-print(len(foodComm_score_dict))
+#print(foodComm_score_dict)
+#print(len(foodComm_score_dict))
 
 with open(os.path.join("data", "foodwords_score_dict.txt"), "w", encoding='utf-8', errors='ignore') as f: 
   f.write(str(foodComm_score_dict))
