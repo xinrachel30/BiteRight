@@ -19,6 +19,7 @@ try:
         if not words_dict:
             print("Food words dictionary is empty!")
         # each item in foodwords_score_dict should already be pre-processed -> omit replacing newlines quotation marks
+    
     vocab = []
     with open(os.path.join("python_scripts_and_data/data", "foodVocab.txt"), "r") as f: 
         raw_vocab = f.read().lower()
