@@ -21,13 +21,17 @@ def create_doc_term(complexRep : dict[str, (dict[str, int], int)], vocab: list[s
   doc_term_rep = np.zeros((len(complexRep), len(vocab)))
   for docIdx, (innerDict, upvotes) in complexRep.items(): 
     #Invariant: Any key of innerDict is guarenteed to be found in vocab
-    f_count_sum = sum(list(innerDict.values()))
+    #f_count_sum = sum(list(innerDict.values())) #Uncomment as needed
     for food, f_count in innerDict.items(): 
       tIdx = vocab.index(food)
       if mode == "bin": 
         doc_term_rep[docIdx][tIdx] = 1
       elif mode == "tf":
-        doc_term_rep[docIdx][tIdx] = upvotes * (f_count/f_count_sum)
+        # tf options: 
+          # tf = upvotes * f_count (Choosing this for now)
+          # tf = upvotes + f_count 
+          # tf = upvotes * (f_count/f_count_sum)
+        doc_term_rep[docIdx][tIdx] = upvotes * f_count
       else: 
         raise Exception("mode must only equal \"bin\" or \"tf\"")
   return doc_term_rep
@@ -66,8 +70,8 @@ def gen_jaccard_sim(query, doc_term_mat):
 
   return jaccard_result
 
-# doc_term_bin_rep = create_doc_term(complexRep, vocab, mode="bin")
-# doc_term_tf_rep = create_doc_term(complexRep, vocab, mode="tf")
+doc_term_bin_rep = create_doc_term(complexRep, vocab, mode="bin")
+doc_term_tf_rep = create_doc_term(complexRep, vocab, mode="tf")
 
 # sample_query = np.ones((len(vocab),))
 # sample_query[0] = 1
