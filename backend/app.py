@@ -57,7 +57,7 @@ def search():
     for term in query_terms:
         if term in vocab:
             idx = vocab.index(term)
-            query_vector[idx] = 1
+            query_vector[idx] += 1
 
     # Create document-term matrix
     doc_term_matrix = create_doc_term(complexRep, vocab, mode="tf")
