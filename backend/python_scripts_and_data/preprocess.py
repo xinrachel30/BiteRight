@@ -30,12 +30,48 @@ def isolateFoodwords(vocab):
   with open(os.path.join("data", "foodwords_score_dict.pkl"), "wb") as file:
     pickle.dump(foodComm_score_dict, file)
 
+# What Complex Data Types need to exists? 
+# commentId, [(Food1, count of Food1, upvotes of comment), ... <All foods in comment>]
+# {commentId : ({Food1 : (count of Food1}, upvotes of comment)} 
+def complexCommentRep(vocab):
+  '''
+  For all unique comments captured in the dataset, returns this representation: 
+  {commentId : ({Food1 : count of occurence of Food1 in commentt}, upvotes of commment)}
+
+  This method does not filter out comment without food words in vocaulary, but
+  such a case would appear as this: {int x: ({}, int y)}
+  where x is the id and y is the upvote score. 
+  '''
+
+  with open(os.path.join("data", "comment_score_dict.pkl"), "rb") as file:
+    comm_score_dict = pickle.load(file)
+  complexRep = {}
+  commentId = 0
+  for comment, upvote in comm_score_dict.items(): 
+    nestedDict = {}
+    for food in vocab: 
+      f_count = comment.count(food)
+      if f_count > 0: 
+        nestedDict.update({food:f_count})
+    complexRep.update({commentId:(nestedDict, upvote)})
+    commentId += 1
+  with open(os.path.join("data", "complexRep.txt"), "w", encoding='utf-8', errors='ignore') as f: 
+    f.write(str(complexRep))
+  with open(os.path.join("data", "complexRep.pkl"), "wb") as file:
+    pickle.dump(complexRep, file)
+
+
+
 vocab_preprocess()
 with open(os.path.join("data", "foodVocab.pkl"), "rb") as file: 
   vocab = pickle.load(file)
 isolateFoodwords(vocab)
 with open(os.path.join("data", "foodwords_score_dict.pkl"), "rb") as file: 
   foodwords_score_dict = pickle.load(file)
+complexCommentRep(vocab)
+with open(os.path.join("data", "complexRep.pkl"), "rb") as file: 
+  complexRep = pickle.load(file)
+
     
     
 
