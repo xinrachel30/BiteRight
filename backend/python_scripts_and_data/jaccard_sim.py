@@ -4,39 +4,28 @@ import numpy as np
 from numpy.typing import NDArray 
 from typing import Any
 
-vocab = []
+with open(os.path.join("data", "foodVocab.pkl"), "rb") as file: 
+  vocab = pickle.load(file)
 
-with open(os.path.join("data", "foodVocab.txt"), "r") as f: 
-  rawTxt = f.read().lower()
-  vocab = rawTxt.split(", ")
+with open(os.path.join("data", "complexRep.pkl"), "rb") as file:
+    complexRep = pickle.load(file)
 
-vocab = list(set(vocab))
-
-with open(os.path.join("data", "foodwords_score_dict.pkl"), "rb") as file:
-    docContent_upvote_dict = pickle.load(file)
-
-def create_doc_term(foodPair_scores : dict[str,int], vocab: list[str], mode:str) -> NDArray[Any]:
+def create_doc_term(complexRep : dict[str, (dict[str, int], int)], vocab: list[str], mode:str) -> NDArray[Any]: 
   mode = mode.lower()
-  doc_term_rep = np.zeros((len(foodPair_scores), len(vocab)))
-  docIdx = 0
-  for content, upvote in foodPair_scores.items(): 
-    content_arr = content.split(", ")
-    content_arr = content_arr[0:len(content_arr)-1] #Eliminates '' at end of arr
-    #Invariant: Any term in content_arr is guarenteed to be in vocab
-    for term in content_arr: 
-      tIdx = vocab.index(term)
+  doc_term_rep = np.zeros((len(complexRep), len(vocab)))
+  for docIdx, (innerDict, upvotes) in complexRep.items(): 
+    #Invariant: Any key of innerDict is guarenteed to be found in vocab
+    f_count_sum = sum(list(innerDict.values()))
+    for food, f_count in innerDict.items(): 
+      tIdx = vocab.index(food)
       if mode == "bin": 
         doc_term_rep[docIdx][tIdx] = 1
       elif mode == "tf":
-        doc_term_rep[docIdx][tIdx] = upvote
+        doc_term_rep[docIdx][tIdx] = upvotes * (f_count/f_count_sum)
       else: 
         raise Exception("mode must only equal \"bin\" or \"tf\"")
-    docIdx += 1
   return doc_term_rep
 
-#Both Jaccard Functions return a (n,) ndarray where n is the number of docs
-#No difference between these two because of way data is formatted in sprint 1
-#gen_jaccard is probably implemented correctly
 def set_jaccard_sim(query, doc_term_mat):
   jaccard_result = np.zeros((len(doc_term_mat), )) 
   doc_term_mat = np.where(doc_term_mat > 0, 1, 0)
@@ -71,11 +60,10 @@ def gen_jaccard_sim(query, doc_term_mat):
 
   return jaccard_result
 
+# doc_term_bin_rep = create_doc_term(complexRep, vocab, mode="bin")
+# doc_term_tf_rep = create_doc_term(complexRep, vocab, mode="tf")
 
-# doc_term_bin_rep = create_doc_term(docContent_upvote_dict, vocab, mode="bin")
-# doc_term_tf_rep = create_doc_term(docContent_upvote_dict, vocab, mode="tf")
-
-# sample_query = np.zeros((len(vocab),))
+# sample_query = np.ones((len(vocab),))
 # sample_query[0] = 1
 # sample_query[10] = 20
 # sample_query[50] = 16
