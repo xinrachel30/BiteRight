@@ -4,10 +4,16 @@ import numpy as np
 from numpy.typing import NDArray 
 from typing import Any
 
-with open(os.path.join("data", "foodVocab.pkl"), "rb") as file: 
-  vocab = pickle.load(file)
+# Update paths to use the correct directory structure
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "python_scripts_and_data", "data")
 
-with open(os.path.join("data", "complexRep.pkl"), "rb") as file:
+# Load vocab
+with open(os.path.join(DATA_DIR, "foodVocab.pkl"), "rb") as file: 
+    vocab = pickle.load(file)
+
+# Load complexRep
+with open(os.path.join(DATA_DIR, "complexRep.pkl"), "rb") as file:
     complexRep = pickle.load(file)
 
 def create_doc_term(complexRep : dict[str, (dict[str, int], int)], vocab: list[str], mode:str) -> NDArray[Any]: 
