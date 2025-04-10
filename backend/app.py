@@ -14,9 +14,9 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 LOCAL_MYSQL_USER = "root"
-LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
+LOCAL_MYSQL_USER_PASSWORD = "3v3ryJ0b@pplic" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
-LOCAL_MYSQL_DATABASE = "fooddb"
+LOCAL_MYSQL_DATABASE = "biterightdb"
 
 mysql_engine = MySQLDatabaseHandler(LOCAL_MYSQL_USER,LOCAL_MYSQL_USER_PASSWORD,LOCAL_MYSQL_PORT,LOCAL_MYSQL_DATABASE)
 

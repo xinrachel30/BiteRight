@@ -14,6 +14,19 @@ def vocab_preprocess():
   with open(os.path.join("data", "foodVocab.pkl"), "wb") as file: 
     pickle.dump(vocab, file)
 
+def flavors_preprocess(): 
+  flavors = []
+  with open(os.path.join("data", "flavors.txt"), "r") as f: 
+    rawTxt = f.read().lower()
+    flavors = rawTxt.split(", ")
+  #print(len(flavors))
+  #print(str(flavors))
+  flavors = list(set(flavors))
+  #print(len(flavors))
+  #print(str(flavors))
+  with open(os.path.join("data", "flavors.pkl"), "wb") as file: 
+    pickle.dump(flavors, file)
+
 def isolateFoodwords(vocab): 
   with open(os.path.join("data", "comment_score_dict.pkl"), "rb") as file:
     comm_score_dict = pickle.load(file)
@@ -58,6 +71,7 @@ def complexCommentRep(vocab):
     pickle.dump(complexRep, file)
 
 vocab_preprocess()
+flavors_preprocess()
 with open(os.path.join("data", "foodVocab.pkl"), "rb") as file: 
   vocab = pickle.load(file)
 isolateFoodwords(vocab)
