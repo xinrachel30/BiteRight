@@ -15,11 +15,12 @@ with open(os.path.join(DATA_DIR, "foodVocab.pkl"), "rb") as file:
 # Load complexRep
 with open(os.path.join(DATA_DIR, "complexRep.pkl"), "rb") as file:
     complexRep = pickle.load(file)
+    complex_items = list(complexRep.items())
 
-def create_doc_term(complexRep : dict[str, (dict[str, int], int)], vocab: list[str], mode:str) -> NDArray[Any]: 
+def create_doc_term(complex_items, vocab: list[str], mode:str) -> NDArray[Any]: 
   mode = mode.lower()
-  doc_term_rep = np.zeros((len(complexRep), len(vocab)))
-  for docIdx, (innerDict, upvotes) in complexRep.items(): 
+  doc_term_rep = np.zeros((len(complex_items), len(vocab)))
+  for docIdx, (comment_id, (innerDict, upvotes)) in enumerate(complex_items): 
     #Invariant: Any key of innerDict is guarenteed to be found in vocab
     #f_count_sum = sum(list(innerDict.values())) #Uncomment as needed
     for food, f_count in innerDict.items(): 
@@ -35,6 +36,25 @@ def create_doc_term(complexRep : dict[str, (dict[str, int], int)], vocab: list[s
       else: 
         raise Exception("mode must only equal \"bin\" or \"tf\"")
   return doc_term_rep
+
+def boolean_and(query_vec, doc_term_bin):
+  has_query = doc_term_bin[:, query_vec == 1]
+  results = np.all(has_query == 1, axis = 1)
+  return results
+
+def boolean_or(query_vec, doc_term_bin): 
+  has_query = doc_term_bin[:, query_vec == 1]
+  results = np.any(has_query == 1, axis = 1)
+  return results
+
+def construct_query_vec(query_words):
+  query_vector = np.zeros((len(vocab), ))
+  for word in query_words: 
+    if word in vocab: 
+      idx = vocab.index(word)
+      query_vector[idx] = 1
+  
+  return query_vector
 
 def set_jaccard_sim(query, doc_term_mat):
   jaccard_result = np.zeros((len(doc_term_mat), )) 
@@ -70,8 +90,8 @@ def gen_jaccard_sim(query, doc_term_mat):
 
   return jaccard_result
 
-doc_term_bin_rep = create_doc_term(complexRep, vocab, mode="bin")
-doc_term_tf_rep = create_doc_term(complexRep, vocab, mode="tf")
+doc_term_bin_rep = create_doc_term(complex_items, vocab, mode="bin")
+doc_term_tf_rep = create_doc_term(complex_items, vocab, mode="tf")
 
 # sample_query = np.ones((len(vocab),))
 # sample_query[0] = 1
