@@ -39,8 +39,8 @@
                 </div>
                 <div id="typo-suggestions"> </div>
                 <div id="answer-box"></div>
-            </div>
-        </div>  
+            </div>  
+        </div>
 
     <script>
         function answerBoxTemplate(title, similarity) {
@@ -79,6 +79,9 @@
                             "<p>No matching food pairings found</p>";
                         return;
                     }
+
+                    document.getElementById("answer-box").innerHTML = "";
+
                     results.forEach(result => {
                         let tempDiv = document.createElement("div")
                         tempDiv.innerHTML = answerBoxTemplate(

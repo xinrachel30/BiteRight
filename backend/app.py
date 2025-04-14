@@ -61,6 +61,8 @@ def search():
     query_vector = np.zeros(len(vocab))
     query_terms = query.split()
 
+    contains_booleans = False
+
     # For creating query vector, modified to also find suggested words
     typo_suggestions = []
     for term in query_terms:
@@ -103,18 +105,30 @@ def search():
     
     # Get top results where similarity > 0
     results = []
+    already_seen = set() #remove duplicates
+
     for idx, score in enumerate(similarity_scores):
         if score > 0:
             true_idx = indices[idx]
             comment_id, (food_dict, _) = complex_items[true_idx]
             food_items = list(food_dict.keys())
+            title = (", ".join(food_items)).strip()
+
+            if title in already_seen: 
+                continue
+            else: 
+                already_seen.add(title)
+
             results.append({
-                'title': ', '.join(food_items),
+                'title': title,
                 'similarity': float(score)
             })
-    
+
     # Sort by similarity score descending
     results.sort(key=lambda x: x['similarity'], reverse=True)
+
+    for item in results[:10]:
+        print(repr(item))
 
     print("hm", typo_suggestions)
     return jsonify({
