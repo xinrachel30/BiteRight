@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
-from python_scripts_and_data.jaccard_sim import create_doc_term, gen_jaccard_sim, vocab, complexRep
+from python_scripts_and_data.jaccard_sim import *
 import numpy as np
 
 # ROOT_PATH for linking with all your files. 
@@ -14,7 +14,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 LOCAL_MYSQL_USER = "root"
-LOCAL_MYSQL_USER_PASSWORD = "3v3ryJ0b@pplic" # TODO: make this an env variable
+LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
 
@@ -58,18 +58,40 @@ def search():
         if term in vocab:
             idx = vocab.index(term)
             query_vector[idx] += 1
+    
+    contains_booleans = " or " in query or " and " in query
+    query_terms = [term for term in query.replace("or", "").replace("and", "").split() if term in vocab]
+    if not query_terms: 
+        return jsonify([])
 
     # Create document-term matrix
-    doc_term_matrix = create_doc_term(complexRep, vocab, mode="tf")
+    doc_term_matrix = create_doc_term(complex_items, vocab, mode="tf")
+    doc_term_binary = np.where(doc_term_matrix > 0, 1, 0)
+
+    query_vector = construct_query_vec(query_terms)
+    query_vector_bin = np.where(query_vector > 0, 1, 0)
+
+    if contains_booleans: 
+        if " or " in query: 
+            bool_mask = boolean_or(query_vector_bin, doc_term_binary)
+        else: 
+            bool_mask = boolean_and(query_vector_bin, doc_term_binary)
+    else: 
+        bool_mask = np.ones(len(complexRep), dtype=bool) #doesn't do anything
+
+    filtered_matrix = doc_term_tf_rep[bool_mask]
+    indices = np.where(bool_mask)[0]
     
     # Get similarity scores using generalized Jaccard
-    similarity_scores = gen_jaccard_sim(query_vector, doc_term_matrix)
+    similarity_scores = gen_jaccard_sim(query_vector, filtered_matrix)
     
     # Get top results where similarity > 0
     results = []
     for idx, score in enumerate(similarity_scores):
         if score > 0:
-            food_items = list(complexRep[idx][0].keys())
+            true_idx = indices[idx]
+            comment_id, (food_dict, _) = complex_items[true_idx]
+            food_items = list(food_dict.keys())
             results.append({
                 'title': ', '.join(food_items),
                 'similarity': float(score)
