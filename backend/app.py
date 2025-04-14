@@ -44,6 +44,11 @@ def episodes_search():
     text = request.args.get("title")
     return sql_search(text)
 
+@app.route("/flavor-search")
+def flavor_search(): 
+    selected_flavors = request.args.getlist("flavors")
+    return selected_flavors
+
 @app.route('/search')
 def search():
     query = request.args.get('query', '').lower()

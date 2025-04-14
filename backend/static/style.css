@@ -1,3 +1,29 @@
+.split {
+    height: 100%;
+    width: 50%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+
+.left {
+    left: 0;
+}
+  
+.right {
+    right: 0;
+}
+  
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
 .full-body-container {
     position: absolute;
     top: 0;
@@ -50,6 +76,7 @@
 
 .input-box {
     border-radius: 50px;
+    max-height: calc(100vh - 50vh);
     border: 1px solid black;
     display: flex;
     align-items: center;
@@ -78,8 +105,23 @@
 }
 
 #answer-box {
+    overflow-y: auto;
+    max-height: calc(100vh - 50vh);
+    position: fixed;
     width: 700px;
     margin-top: 50px;
+}
+
+.divider {
+    width: 3px;
+    background-color: black; 
+    height: 100%;
+}
+
+.checklist {
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
 }
 
 .episode-title {

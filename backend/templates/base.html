@@ -11,20 +11,32 @@
         <div class="top-text">
             <div class="google-colors">
                 <h1 id="site-name">BiteRight</h1>
-                <!-- <h1 id="google-4">4</h1>
-                <h1 id="google-3">3</h1>
-                <h1 id="google-0-1">0</h1>
-                <h1 id="google-0-2">0</h1> -->
-            </div>
-            <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Enter a food you would like to pair" id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
-        <div id="answer-box">
+        
+        <div class="split left">
+            <div class="checklist">
+                <form action="/flavor-search">
+                    <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
+                    <label><input type="checkbox" name="flavors" value="Spicy"> Spicy</label><br>
+                    <label><input type="checkbox" name="flavors" value="Cold"> Cold</label><br>
+                    <label><input type="checkbox" name="flavors" value="Sweet"> Sweet</label><br>
+                    <button type="flavor-search">Search</button>
+                </form>
+            </div>
+        </div>
 
-        </div>
-    </div>
+        <div class="divider"></div>
+
+        <div class="split right">
+            <div class="centered">
+                <div class="input-box" onclick="sendFocus()">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Enter a food you would like to pair" id="filter-text-val" onkeyup="filterText()">
+                </div>
+                <div id="answer-box"></div>
+            </div>
+        </div>  
 
     <script>
         function answerBoxTemplate(title, similarity) {
