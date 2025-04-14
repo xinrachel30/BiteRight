@@ -127,10 +127,10 @@ button[name="flavor-search"] {
 
 #answer-box {
     overflow-y: auto;
-    max-height: calc(100vh - 50vh);
+    max-height: calc(100vh - 40vh);
     position: fixed;
     width: 600px;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 #flavor-answer-box {
@@ -164,15 +164,17 @@ button[name="flavor-search"] {
     font-family: 'Montserrat', sans-serif;
 }
 
-.typo-suggestions {
+#typo-suggestions {
     margin-top: 10px; 
-    font-style: italic; 
-    color: gray;
+    font-style: italic;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    color: darkgray;
 }
 
 .search-result {
     padding: 15px;
-    margin: 10px 0;
+    margin: 5px 0;
     border: 1px solid #ddd;
     border-radius: 8px;
     background: white;
