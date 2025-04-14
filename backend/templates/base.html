@@ -17,13 +17,14 @@
         <div class="split left">
             <div class = "instruction">To use the <span style="font-weight: bold; color: darkmagenta;">flavor search</span>, select as many flavors as you would like the dish to have. Get creative!</div>
             <div class="checklist">
-                <form action="/flavor-search">
+                <form action="/flavor-search" id="flavor_form">
                     <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
                     <label><input type="checkbox" name="flavors" value="Spicy"> Spicy</label><br>
                     <label><input type="checkbox" name="flavors" value="Cold"> Cold</label><br>
                     <label><input type="checkbox" name="flavors" value="Sweet"> Sweet</label><br>
                     <button type="submit" name="flavor-search">Search</button>
                 </form>
+                <div id="flavor-answer-box"></div>
             </div>
         </div>
 
@@ -34,8 +35,9 @@
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Enter a food you would like to pair" id="filter-text-val" onkeyup="filterText()">
+                    <input placeholder="Enter some foods you're eating" id="filter-text-val" onkeyup="filterText()">
                 </div>
+                <div id="typo-suggestions"> </div>
                 <div id="answer-box"></div>
             </div>
         </div>  
@@ -55,26 +57,37 @@
         function filterText() {
             const query = document.getElementById("filter-text-val").value
             document.getElementById("answer-box").innerHTML = ""
+            document.getElementById("typo-suggestions").innerHTML = "";
 
             if (!query) return;
 
             fetch("/search?" + new URLSearchParams({ query: query }).toString())
                 .then((response) => response.json())
                 .then((data) => {
-                    if (data.length === 0) {
+                    const results = data.results || data;
+                    const suggestions = data.suggestions || [];
+                    if (suggestions.length > 0) {
+                        document.getElementById("typo-suggestions").innerHTML = 
+                            `Did you mean: ${suggestions.join(", ")}?`;
+                    }
+                    else {
+                        document.getElementById("typo-suggestions").innerHTML = "";
+                    }
+                    
+                    if (results.length === 0) {
                         document.getElementById("answer-box").innerHTML =
                             "<p>No matching food pairings found</p>";
                         return;
                     }
-
-                    data.forEach(result => {
+                    results.forEach(result => {
                         let tempDiv = document.createElement("div")
                         tempDiv.innerHTML = answerBoxTemplate(
                             result.title,
                             result.similarity
                         )
                         document.getElementById("answer-box").appendChild(tempDiv)
-                    });
+                    })
+                    return;
                 })
                 .catch(error => {
                     console.error('Error:', error);

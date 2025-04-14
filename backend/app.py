@@ -58,22 +58,31 @@ def search():
     # Create query vector
     query_vector = np.zeros(len(vocab))
     query_terms = query.split()
-    
+
+    # For creating query vector, modified to also find suggested words
+    typo_suggestions = []
     for term in query_terms:
         if term in vocab:
             idx = vocab.index(term)
             query_vector[idx] += 1
-    
-    contains_booleans = " or " in query or " and " in query
-    query_terms = [term for term in query.replace("or", "").replace("and", "").split() if term in vocab]
-    if not query_terms: 
-        return jsonify([])
+        elif term == "or" or term == "and":
+            contains_booleans = True
+        else:
+            typo_suggestions += find_closest(term, vocab)
+    print(typo_suggestions)
+
+    query_vocab_terms = [term for term in query.replace("or", "").replace("and", "").split() if term in vocab]
+    if not query_vocab_terms: 
+        return jsonify({
+            "results": [],
+            "suggestions": typo_suggestions
+        })
 
     # Create document-term matrix
     doc_term_matrix = create_doc_term(complex_items, vocab, mode="tf")
     doc_term_binary = np.where(doc_term_matrix > 0, 1, 0)
 
-    query_vector = construct_query_vec(query_terms)
+    query_vector = construct_query_vec(query_vocab_terms)
     query_vector_bin = np.where(query_vector > 0, 1, 0)
 
     if contains_booleans: 
@@ -104,7 +113,12 @@ def search():
     
     # Sort by similarity score descending
     results.sort(key=lambda x: x['similarity'], reverse=True)
-    return jsonify(results[:10])  # Return top 10 results
+
+    print("hm", typo_suggestions)
+    return jsonify({
+        "results": results[:10], 
+        "suggestions": typo_suggestions 
+    })  # Return top 10 results
 
 
 if 'DB_NAME' not in os.environ:
