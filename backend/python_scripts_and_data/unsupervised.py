@@ -23,23 +23,25 @@ with open(os.path.join(DATA_DIR, "complexRep.pkl"), "rb") as file:
 with open(os.path.join(DATA_DIR, "flavors.pkl"), "rb") as file:
     flavors = pickle.load(file)
 
-#Assumption: Shape is (n,) where is number of foods recognized in vocab
-ff_data = ["food words for food 1", "food words for food 2", "..."] 
+with open(os.path.join(DATA_DIR, "food_flavors_data.pkl"), "rb") as file: 
+    #Assumption: Shape is (n,) where is number of foods recognized in vocab
+    ff_data = pickle.load(file)
+
 
 vectorizer = TfidfVectorizer(vocabulary=flavors)
-
 #n x m, where n is as above and m is number of recognized flavors
 food_flavor_matrix = vectorizer.fit_transform([x for x in ff_data])
 
 #Note: k is limited: if food_flavor_matrix.shape = (n, m)
 #k = min(n,m) - 1 at it's largest
-u, s, v_trans = svds(food_flavor_matrix, k=2) 
+#print(food_flavor_matrix.shape)
+u, s, v_trans = svds(food_flavor_matrix, k=100)
 
 ###This can be removed once we select an appropriate value of k
 plt.plot(s[::-1])
 plt.xlabel("Singular value number")
 plt.ylabel("Singular value")
-plt.show()
+#plt.show()  #Commented out once an appropriate k is chosen
 
 '''
 Appropriate Value of k is set here (Affects number of latent flavor dims)
@@ -47,7 +49,7 @@ foods_compressed is (n x k) --> See food latent dim values
 flavors compressed.T is (m x k) --> See flavor latent dim values 
 s is a (k x k) byproduct --> It's useless. 
 '''
-foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=1)
+foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=4)
 flavors_compressed = flavors_compressed.transpose()
 
 #Normalization step can occur here 
@@ -69,17 +71,19 @@ Requires food_list to be preprocessed:
 
 Returns an ordering of foods closest to flavor profile
 '''
-def closest_flavor_profile(food_list, food_latent_rep): 
-    query = np.zeros((flavors,))
+def closest_food_profile(food_list, food_latent_rep): 
+    query = np.zeros((len(food_latent_rep[0]),))
     for food in food_list: 
         foodIdx = vocab.index(food)
-        query += food_latent_rep [foodIdx]
-    query_norm = normalize(query)
-    sims = np.dot(food_latent_rep, query_norm.T)
+        query += food_latent_rep[foodIdx]
+    #query_norm = normalize(query)
+    sims = np.dot(food_latent_rep, query.T)
+    #print(sims.shape)
     desc_order = np.argsort(sims)[::-1]
     if len(food_list) == 1: 
+        #print(vocab[desc_order[0]])
         desc_order = desc_order[1:] #Exclude matching food word
-    closest_foods = vocab[desc_order]
+    closest_foods = [vocab[i] for i in desc_order]
     return closest_foods
 
 '''
@@ -90,13 +94,23 @@ Requires flavor_list to be preprocessed:
 Returns an ordering of foods closest to flavor profile
 '''
 def closest_flavor_calc(flavor_list, food_latent_rep):
-    query = np.zeros((flavors,))
+    #query = np.zeros((len(flavors),))
+    flav_str = ""
     for flav in flavor_list: 
-        flavIdx = flavors.index(flavors)
-        query[flavIdx] = 1
-    query_norm = normalize(query)
+        flav_str += (flav + " ")
+    query = vectorizer.transform([flav_str]).toarray()
+    query_vec = np.dot(query, flavors_compressed)
+    query_norm = normalize(query_vec).flatten()
     sims = np.dot(food_latent_rep, query_norm.T)
+    #print(sims.shape)
     desc_order = np.argsort(sims)[::-1]
-    closest_foods = vocab[desc_order]
+    closest_foods = [vocab[i] for i in desc_order]
     return closest_foods
 
+# print(str(closest_food_profile(["apple"], foods_compressed_norm)[:10]))
+# print(str(closest_food_profile(["apple", "ice cream"], foods_compressed_norm)[:10]))
+# print(str(closest_food_profile([], foods_compressed_norm)[:10]))
+
+# print(str(closest_flavor_calc(["sweet"], foods_compressed_norm)[:10]))
+# print(str(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm)[:10]))
+# print(str(closest_flavor_calc([], foods_compressed_norm)[:10]))
