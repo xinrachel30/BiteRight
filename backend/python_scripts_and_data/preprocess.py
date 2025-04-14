@@ -70,6 +70,63 @@ def complexCommentRep(vocab):
   with open(os.path.join("data", "complexRep.pkl"), "wb") as file:
     pickle.dump(complexRep, file)
 
+def food_flavor_data_preprocess(vocab, flavors): 
+  with open(os.path.join("data", "sweet.txt"), "r") as file:
+    sweetFoods = [line.strip().lower() for line in file if line.strip()]
+  with open(os.path.join("data", "spicy.txt"), "r") as file:
+    spicyFoods = [line.strip().lower() for line in file if line.strip()]
+  with open(os.path.join("data", "fried.txt"), "r") as file:
+    friedFoods = [line.strip().lower() for line in file if line.strip()]
+  with open(os.path.join("data", "cold.txt"), "r") as file:
+    coldFoods = [line.strip().lower() for line in file if line.strip()]
+
+  sweetIdx = flavors.index("sweet")
+  spicyIdx = flavors.index("spicy")
+  coldIdx = flavors.index("cold")
+  friedIdx = flavors.index("fried")
+
+  food_flavor_mat = np.zeros((len(vocab), len(flavors)))
+  for flavFood in sweetFoods: 
+    for foodIdx in range(0, len(vocab)): 
+      if vocab[foodIdx] in flavFood:
+        food_flavor_mat[foodIdx][sweetIdx] = 1
+        #print(str(vocab[foodIdx]) + " is sweet") 
+
+  for flavFood in spicyFoods: 
+    for foodIdx in range(0, len(vocab)): 
+      if vocab[foodIdx] in flavFood:
+        food_flavor_mat[foodIdx][spicyIdx] = 1
+
+  for flavFood in coldFoods: 
+    for foodIdx in range(0, len(vocab)): 
+      if vocab[foodIdx] in flavFood:
+        food_flavor_mat[foodIdx][coldIdx] = 1
+
+  for flavFood in friedFoods: 
+    for foodIdx in range(0, len(vocab)): 
+      if vocab[foodIdx] in flavFood:
+        food_flavor_mat[foodIdx][friedIdx] = 1
+
+  #Formatted as in demo for unsupervised learning
+  foodFlavorsList = []
+  for i in range(0, len(food_flavor_mat)): 
+    food_flavor_str = ""
+    if food_flavor_mat[i][sweetIdx] == 1:
+      food_flavor_str += "sweet "
+    if food_flavor_mat[i][spicyIdx] == 1: 
+      food_flavor_str += "spicy "
+    if food_flavor_mat[i][coldIdx] == 1: 
+      food_flavor_str += "cold "
+    if food_flavor_mat[i][friedIdx] == 1: 
+      food_flavor_str += "fried "
+    foodFlavorsList.append(food_flavor_str)
+
+  with open(os.path.join("data", "food_flavors_data.txt"), "w", encoding='utf-8', errors='ignore') as f: 
+    f.write(str(foodFlavorsList))
+  with open(os.path.join("data", "food_flavors_data.pkl"), "wb") as file:
+    pickle.dump(foodFlavorsList, file)
+  
+
 vocab_preprocess()
 flavors_preprocess()
 with open(os.path.join("data", "foodVocab.pkl"), "rb") as file: 
@@ -80,7 +137,9 @@ with open(os.path.join("data", "foodwords_score_dict.pkl"), "rb") as file:
 complexCommentRep(vocab)
 with open(os.path.join("data", "complexRep.pkl"), "rb") as file: 
   complexRep = pickle.load(file)
-
+with open(os.path.join("data", "flavors.pkl"), "rb") as file: 
+  flavors = pickle.load(file)
+food_flavor_data_preprocess(vocab, flavors)
     
     
 
