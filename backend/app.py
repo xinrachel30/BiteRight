@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from python_scripts_and_data.jaccard_sim import *
+from python_scripts_and_data.unsupervised import *
 import numpy as np
 
 # ROOT_PATH for linking with all your files. 
@@ -47,7 +48,8 @@ def episodes_search():
 @app.route("/flavor-search")
 def flavor_search(): 
     selected_flavors = request.args.getlist("flavors")
-    return selected_flavors
+    ranking = closest_flavor_calc(selected_flavors)
+    return jsonify({"results": ranking[:10]})
 
 @app.route('/search')
 def search():

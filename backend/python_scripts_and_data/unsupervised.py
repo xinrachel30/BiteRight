@@ -27,7 +27,7 @@ with open(os.path.join(DATA_DIR, "food_flavors_data.pkl"), "rb") as file:
     #Assumption: Shape is (n,) where is number of foods recognized in vocab
     ff_data = pickle.load(file)
 
-
+###Declaration of the vectorizer is essential
 vectorizer = TfidfVectorizer(vocabulary=flavors)
 #n x m, where n is as above and m is number of recognized flavors
 food_flavor_matrix = vectorizer.fit_transform([x for x in ff_data])
@@ -61,7 +61,7 @@ with open(os.path.join(DATA_DIR, "unsupervisedData.pkl"), "wb") as file:
 #Above Steps should only happen once in prepreprocessing
 #Separating and putting steps here for now
 
-with open(os.path.join("data", "unsupervisedData.pkl"), "rb") as file: 
+with open(os.path.join(DATA_DIR, "unsupervisedData.pkl"), "rb") as file: 
   (foods_compressed_norm, flavors_compressed_norm) = pickle.load(file)
 
 '''
@@ -71,7 +71,7 @@ Requires food_list to be preprocessed:
 
 Returns an ordering of foods closest to flavor profile
 '''
-def closest_food_profile(food_list, food_latent_rep): 
+def closest_food_profile(food_list, food_latent_rep=foods_compressed_norm): 
     query = np.zeros((len(food_latent_rep[0]),))
     for food in food_list: 
         foodIdx = vocab.index(food)
@@ -93,7 +93,7 @@ Requires flavor_list to be preprocessed:
 
 Returns an ordering of foods closest to flavor profile
 '''
-def closest_flavor_calc(flavor_list, food_latent_rep):
+def closest_flavor_calc(flavor_list, food_latent_rep=foods_compressed_norm):
     #query = np.zeros((len(flavors),))
     flav_str = ""
     for flav in flavor_list: 
