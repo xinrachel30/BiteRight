@@ -74,6 +74,25 @@
     margin-right: 3px;
 }
 
+.instruction {
+    padding-top: 25vh;
+    padding-left: 25px; 
+    padding-right: 25px;
+    font-size: 24px;
+    font-family: 'Open Sans', sans-serif;
+    padding-bottom: 20px;
+}
+
+button[name="flavor-search"] {
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+  }
+
 .input-box {
     border-radius: 50px;
     max-height: calc(100vh - 50vh);
@@ -121,7 +140,9 @@
 .checklist {
     font-size: 16px;
     font-family: 'Open Sans', sans-serif;
-    text-align: left;
+    text-align: center;
+    height: 50%;
+    margin-left: 25px;
 }
 
 .episode-title {

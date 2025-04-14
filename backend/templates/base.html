@@ -10,18 +10,19 @@
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
-                <h1 id="site-name">BiteRight</h1>
+                <h1 id="site-name"><span style="color: darkcyan;">Bite</span><span style="color: darkmagenta;">Right</span></h1>
             </div>
         </div>
         
         <div class="split left">
+            <div class = "instruction">To use the <span style="font-weight: bold; color: darkmagenta;">flavor search</span>, select as many flavors as you would like the dish to have. Get creative!</div>
             <div class="checklist">
                 <form action="/flavor-search">
                     <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
                     <label><input type="checkbox" name="flavors" value="Spicy"> Spicy</label><br>
                     <label><input type="checkbox" name="flavors" value="Cold"> Cold</label><br>
                     <label><input type="checkbox" name="flavors" value="Sweet"> Sweet</label><br>
-                    <button type="flavor-search">Search</button>
+                    <button type="submit" name="flavor-search">Search</button>
                 </form>
             </div>
         </div>
@@ -29,6 +30,7 @@
         <div class="divider"></div>
 
         <div class="split right">
+            <div class = "instruction">To use the <span style="font-weight: bold; color: darkcyan;">ingredient search</span>, mention foods that you are currently enjoying. Are you eating pickle and peach? Search for it and see what other tasty foods you might want to incorporate!</div>
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
