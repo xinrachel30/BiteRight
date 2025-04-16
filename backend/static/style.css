@@ -4,7 +4,6 @@
     position: fixed;
     z-index: 1;
     top: 0;
-    overflow-x: hidden;
     overflow-y: hidden;
     padding-top: 20px;
   }
@@ -76,12 +75,11 @@
 }
 
 .instruction {
-    padding-top: 25vh;
+    padding-top: 22vh;
     padding-left: 25px; 
     padding-right: 25px;
     font-size: 24px;
     font-family: 'Open Sans', sans-serif;
-    padding-bottom: 20px;
 }
 
 button[name="flavor-search"] {
@@ -95,15 +93,48 @@ button[name="flavor-search"] {
   }
 
 .input-box {
+    position: fixed;
+    margin-top: -8vh;
+    left: 50%;
+    transform: translateX(-50%);
     border-radius: 50px;
-    max-height: calc(100vh - 50vh);
     border: 1px solid black;
     display: flex;
-    align-items: center;
-    margin-top: 10px;
     padding: 12px;
     width: 600px;
+    z-index: 1000;
+    background: white;
+    overflow:hidden;
 }
+
+#typo-suggestions {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    font-style: italic;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    color: darkgray;
+    height: 4vh;
+    width: 620px;
+    z-index: 999;
+}
+
+#answer-box {
+    position: fixed;
+    margin-top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow-y: auto;
+    max-height: 42vh;
+    width: 620px;
+    z-index: 997;
+}
+
+#answer-box:empty {
+    position:fixed;
+}
+
 
 .input-box img {
     height: 20px;
@@ -125,18 +156,10 @@ button[name="flavor-search"] {
     outline: 0;
 }
 
-#answer-box {
-    overflow-y: auto;
-    max-height: calc(100vh - 40vh);
-    position: fixed;
-    width: 600px;
-    margin-top: 30px;
-}
-
 #flavor-answer-box {
     overflow-y: auto;
-    max-height: calc(100vh - 50vh);
-    position: fixed;
+    max-height: calc(100vh - 40vh);
+    position: relative;
     width: 600px;
     margin-top: 50px;
 }
@@ -149,6 +172,7 @@ button[name="flavor-search"] {
 }
 
 .checklist {
+    margin-top:20px;
     font-size: 16px;
     font-family: 'Open Sans', sans-serif;
     text-align: center;
@@ -162,14 +186,6 @@ button[name="flavor-search"] {
 
 .episode-desc {
     font-family: 'Montserrat', sans-serif;
-}
-
-#typo-suggestions {
-    margin-top: 10px; 
-    font-style: italic;
-    font-family: 'Open Sans', sans-serif;
-    text-align: left;
-    color: darkgray;
 }
 
 .search-result {
