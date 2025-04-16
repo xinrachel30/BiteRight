@@ -38,10 +38,10 @@ food_flavor_matrix = vectorizer.fit_transform([x for x in ff_data])
 u, s, v_trans = svds(food_flavor_matrix, k=100)
 
 ###This can be removed once we select an appropriate value of k
-plt.plot(s[::-1])
-plt.xlabel("Singular value number")
-plt.ylabel("Singular value")
-#plt.show()  #Commented out once an appropriate k is chosen
+# plt.plot(s[::-1])
+# plt.xlabel("Singular value number")
+# plt.ylabel("Singular value")
+# plt.show()  #Commented out once an appropriate k is chosen
 
 '''
 Appropriate Value of k is set here (Affects number of latent flavor dims)
@@ -49,7 +49,7 @@ foods_compressed is (n x k) --> See food latent dim values
 flavors compressed.T is (m x k) --> See flavor latent dim values 
 s is a (k x k) byproduct --> It's useless. 
 '''
-foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=4)
+foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=60)
 flavors_compressed = flavors_compressed.transpose()
 
 #Normalization step can occur here 
@@ -107,10 +107,26 @@ def closest_flavor_calc(flavor_list, food_latent_rep=foods_compressed_norm):
     closest_foods = [vocab[i] for i in desc_order]
     return closest_foods
 
-# print(str(closest_food_profile(["apple"], foods_compressed_norm)[:10]))
-# print(str(closest_food_profile(["apple", "ice cream"], foods_compressed_norm)[:10]))
-# print(str(closest_food_profile([], foods_compressed_norm)[:10]))
+print("Tastes like an apple")
+print(str(closest_food_profile(["apple"], foods_compressed_norm)[:10]))
+print("\n")
 
-# print(str(closest_flavor_calc(["sweet"], foods_compressed_norm)[:10]))
-# print(str(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm)[:10]))
-# print(str(closest_flavor_calc([], foods_compressed_norm)[:10]))
+print("Tastes like an apple and ice cream")
+print(str(closest_food_profile(["apple", "ice cream"], foods_compressed_norm)[:10]))
+print("\n")
+
+print("Tastes like spaghetti, apple, and cilantro")
+print(str(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm)[:10]))
+print("\n")
+
+print("Tastes sweet")
+print(str(closest_flavor_calc(["sweet"], foods_compressed_norm)[:10]))
+print("\n")
+
+print("Tastes sweet and spicy")
+print(str(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm)[:10]))
+print("\n")
+
+print("Tastes robust, sugary, greasy, and rich")
+print(str(closest_flavor_calc(["robust", "sugary", "greasy", "rich"], foods_compressed_norm)[:10]))
+print("\n")
