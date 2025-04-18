@@ -1,12 +1,17 @@
+import numpy as np
+from python_scripts_and_data.jaccard_sim import *
+from python_scripts_and_data.unsupervised import *
+from python_scripts_and_data.evaluation import *
+
 #currently using substitution cost of 1, but may reconsider?
 #maybe nearby letters can be substitution cost 1, but non-nearby is 2?
 def edit_distance(word1, word2):
   x, y = len(word1), len(word2) #dimensions
   dp = [[0] * (y+1) for _ in range(x+1)] #number of rows is len(word1), number of cols is len(word2)
 
-  for i in range(x + 1): 
+  for i in range(x+1):
     dp[i][0] = i
-  for i in range(y + 1): 
+  for i in range(y+1): 
     dp[0][i] = i
   
   for i in range(1, x+1): 
@@ -42,62 +47,14 @@ def find_closest(term, vocab):
   typo_suggestions.append(second_closest)  
   return typo_suggestions
 
-def parse_parens(tokens):
-stack = []
-curr = []
-
-for token in tokens:
-    if token == "(":
-        stack.append(curr)
-        curr = []
-    elif token == ")":
-        subquery = curr
-        curr = stack.pop()
-        curr.append(subquery)
-    else:
-        curr.append(token)
-return curr
-
-#pre-condition: there are no commas in query_vec, lowercase
-def iterative_boolean(query, doc_term_bin, vocab):
-    def evaluate_subquery(subquery, doc_term_bin, vocab):
-        shortened_query_vec = subquery[:]
-        new_docs = doc_term_bin
-        while len(shortened_query_vec) >= 2:
-            if shortened_query_vec[0] == "not":
-                if shortened_query_vec[1] in vocab:
-                    new_docs = boolean_not(shortened_query_vec, new_docs)
-                shortened_query_vec.pop(0)
-                shortened_query_vec.pop(0)
-            elif len(shortened_query_vec) >= 3:
-                if shortened_query_vec[1] == "and":
-                    if shortened_query_vec[0] in vocab and shortened_query_vec[2] in vocab:
-                        new_docs = boolean_and(shortened_query_vec, new_docs)
-                    shortened_query_vec.pop(0)
-                    shortened_query_vec.pop(0)
-                elif shortened_query_vec[1] == "or":
-                    if shortened_query_vec[0] in vocab and shortened_query_vec[2] in vocab:
-                        new_docs = boolean_or(shortened_query_vec, new_docs)
-                    shortened_query_vec.pop(0)
-                    shortened_query_vec.pop(0)
-        return new_docs
-
-    stack = []
-    current_query = []
-    for token in query:
-        if token == "(":
-            stack.append(current_query)
-            current_query = []
-        elif token == ")":
-            subquery_docs = evaluate_subquery(current_query, doc_term_bin, vocab)
-            current_query = stack.pop()
-            current_query.append(subquery_docs)
-        else:
-            current_query.append(token)
-    
-    return evaluate_subquery(current_query, doc_term_bin, vocab)
-
-
+def construct_query_vec(query_words, vocab):
+  query_vector = np.zeros((len(vocab), ))
+  for word in query_words: 
+    if word in vocab: 
+      idx = vocab.index(word)
+      query_vector[idx] = 1
+  
+  return query_vector
 
 def boolean_not(query_vec, doc_term_bin): 
     results = doc_term_bin[:, query_vec == 0]
@@ -113,11 +70,117 @@ def boolean_or(query_vec, doc_term_bin):
   results = np.any(has_query == 1, axis = 1)
   return results
 
-def construct_query_vec(query_words):
-  query_vector = np.zeros((len(vocab), ))
-  for word in query_words: 
-    if word in vocab: 
-      idx = vocab.index(word)
-      query_vector[idx] = 1
-  
-  return query_vector
+def tokenize_query(query):
+    tokens = []
+    current_token = ""
+    for char in query:
+        if char in ["(", ")", " "]:
+            if current_token:
+                tokens.append(current_token)
+                current_token = ""
+            if char != " ":
+                tokens.append(char)
+        else:
+            current_token += char
+    if current_token:
+        tokens.append(current_token)
+    return tokens
+
+tokenized = tokenize_query("cheese and (grape or lemon)")
+print(tokenized)
+
+def parse_parens(tokens):
+    stack = []
+    curr = []
+
+    for token in tokens:
+        if token == "(":
+            stack.append(curr)
+            curr = []
+        elif token == ")":
+            subquery = curr
+            curr = stack.pop()
+            curr.append(subquery)
+        else:
+            curr.append(token)
+    return curr
+
+the_best_query = parse_parens(tokenized)
+print(the_best_query)
+
+#pre-condition: query does not have commas, should have already ran tokenize and parse
+def complete_boolean(query, doc_term_bin, vocab, complexRep):
+    try:
+        if isinstance(query, str):
+            query_vec = construct_query_vec([query], vocab)
+            return boolean_or(query_vec, doc_term_bin)
+        if isinstance(query, list) and len(query) == 1:
+            return complete_boolean(query[0], doc_term_bin, vocab, complexRep)
+        
+        i = 0
+        current_mask = None
+        while i < len(query):
+            token = query[i]
+
+            if token == "not": 
+                i += 1
+                if i >= len(query): 
+                    return np.ones(len(complexRep), dtype=bool)
+                negated = complete_boolean(query[i], doc_term_bin, vocab, complexRep)
+                sub_mask = np.logical_not(negated)
+                if current_mask is None:
+                    current_mask = sub_mask
+                else: 
+                    current_mask = np.logical_and(current_mask, sub_mask)
+            elif token == "and" or token == "or":
+                op = token
+                i += 1
+                if i >= len(query):
+                    np.ones(len(complexRep), dtype=bool)
+                right = query[i]
+                right_mask = complete_boolean(right, doc_term_bin, vocab, complexRep)
+
+                if op == "and":
+                    current_mask = np.logical_and(current_mask, right_mask)
+                elif op == "or":
+                    current_mask = np.logical_or(current_mask, right_mask)
+            else:
+                subquery = token
+                sub_mask = complete_boolean(subquery, doc_term_bin, vocab, complexRep)
+                if current_mask is None:
+                    current_mask = sub_mask
+                else:
+                    current_mask = np.logical_and(current_mask, sub_mask)
+            i += 1
+
+        return current_mask if current_mask is not None else np.ones(len(complexRep), dtype=bool)
+
+    except Exception as e: # the main case this happens is when the user improperly formats
+        #may want to return some indication of this happening to app.py
+        return np.ones(doc_term_bin.shape[0], dtype=bool)
+
+# for i, doc in enumerate(matched_docs):
+#     print(f"doc{i}, things in doc:{doc}")
+
+# vocab = ["cheese", "grape", "lemon", "banana", "cream", "pork"]
+# doc_term_bin = np.array([
+#     [1, 1, 0, 0, 0, 0],  # doc 0: cheese, grape
+#     [0, 0, 0, 0, 1, 0],  # doc 1: cream
+#     [1, 0, 0, 1, 0, 0],  # doc 2: cheese, banana
+#     [1, 1, 1, 1, 0, 0],  # doc 3: cheese, grape, lemon, banana
+#     [0, 0, 0, 0, 1, 1],  # doc 4: cream, pork
+#     [1, 0, 0, 0, 0, 1],  # doc 5: cheese, pork
+# ])
+# complex_items = list(enumerate([({}, "") for _ in doc_term_bin]))
+# complexRep = [None] * len(doc_term_bin)  # just dummy placeholders
+
+# def print_test(query):
+#     mask = complete_boolean(query, doc_term_bin, vocab, complexRep)
+#     matched = [i for i, val in enumerate(mask) if val]
+#     print("Query:", query)
+#     print("Matched indices :", matched)
+
+# print_test(['cheese', 'and', 'grape'])
+
+# print_test(['banana', 'or', 'cream'])
+

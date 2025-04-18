@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from python_scripts_and_data.jaccard_sim import *
+from python_scripts_and_data.jaccard_sim import create_doc_term
 from python_scripts_and_data.unsupervised import *
 from python_scripts_and_data.evaluation import *
 import numpy as np
@@ -64,26 +65,37 @@ def search():
     if not query:
         return jsonify([])
 
-    # Create query vector
-    query_vector = np.zeros(len(vocab))
-    query_terms = query.split()
+    tokenized_query = tokenize_query(query) 
+    # ex) "pork and cheese" -> ['pork', 'and', 'cheese]
+    # ex) "(pork and cheese)" -> ['(', 'pork', 'and', 'cheese', ')']
+    print("tokenized:", tokenized_query)
 
+    cleaned_query_boolean = parse_parens(tokenized_query)
+    # ex) "(pork and cheese)" -> [ ['pork', 'and', 'cheese'] ]
+    # ex) "(pork and cheese) or grape" -> [ ['pork', 'and', 'cheese'], 'or', 'grape' ]
+    print("cleaned boolean: ", cleaned_query_boolean)
+
+    # Initialize variables
+    query_vector = np.zeros(len(vocab))
+    typo_suggestions = []
     contains_booleans = False
 
     # For creating query vector, modified to also find suggested words
-    typo_suggestions = []
-    for term in query_terms:
+    for term in tokenized_query:
         if term in vocab:
             idx = vocab.index(term)
             query_vector[idx] += 1
-        elif term == "or" or term == "and":
+            print(term, " is a vocab word")
+        elif term in ["or", "and", "not", "(", ")"]: #considering parentheses as booleans
             contains_booleans = True
+            print("contains booleans")
         else:
-            typo_suggestions += find_closest(term, vocab)
-    print(typo_suggestions)
+            typo_suggestions.extend(find_closest(term, vocab)) #if mispelt, find typos suggestions
 
-    query_vocab_terms = [term for term in query.replace("or", "").replace("and", "").split() if term in vocab]
-    if not query_vocab_terms: 
+    query_vocab_terms = [term for term in tokenized_query if term in vocab]
+    print("final list of vocab: ", query_vocab_terms)
+    
+    if not query_vocab_terms: #no vocab words 
         return jsonify({
             "results": [],
             "suggestions": typo_suggestions
@@ -91,26 +103,28 @@ def search():
 
     # Create document-term matrix
     doc_term_matrix = create_doc_term(complex_items, vocab, mode="tf")
+    print("doc term matrix shape: ", doc_term_matrix.shape)
     doc_term_binary = np.where(doc_term_matrix > 0, 1, 0)
-
-    query_vector = construct_query_vec(query_vocab_terms)
-    query_vector_bin = np.where(query_vector > 0, 1, 0)
+    print("number of documents: ", len(complex_items))
 
     if contains_booleans: 
-        bool_mask = iterative_boolean(query_terms, doc_term_binary, vocab)
+        bool_mask = complete_boolean(cleaned_query_boolean, doc_term_binary, vocab, complexRep)
+        print("contains booleans -> created bool_mask")
     else: 
         bool_mask = np.ones(len(complexRep), dtype=bool) #doesn't do anything
+        print("bool mask is all ones")
 
-    filtered_matrix = doc_term_tf_rep[bool_mask]
+    filtered_matrix = doc_term_matrix[bool_mask]
+    print("filtered matrix shape:", filtered_matrix.shape)
     indices = np.where(bool_mask)[0]
-    
+
     # Get similarity scores using generalized Jaccard
     similarity_scores = gen_jaccard_sim(query_vector, filtered_matrix)
     
     # Get top results where similarity > 0
     results = []
     already_seen = set() #remove duplicates
-
+    
     for idx, score in enumerate(similarity_scores):
         if score > 0:
             true_idx = indices[idx]
@@ -131,10 +145,6 @@ def search():
     # Sort by similarity score descending
     results.sort(key=lambda x: x['similarity'], reverse=True)
 
-    for item in results[:10]:
-        print(repr(item))
-
-    print("hm", typo_suggestions)
     return jsonify({
         "results": results[:10], 
         "suggestions": typo_suggestions 
