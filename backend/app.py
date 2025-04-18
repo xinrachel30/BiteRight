@@ -61,19 +61,32 @@ def flavor_search():
 
 @app.route('/search')
 def search():
-    query = request.args.get('query', '').lower()
+    query = request.args.get('query', '').lower()    
     if not query:
         return jsonify([])
 
-    tokenized_query = tokenize_query(query) 
-    # ex) "pork and cheese" -> ['pork', 'and', 'cheese]
-    # ex) "(pork and cheese)" -> ['(', 'pork', 'and', 'cheese', ')']
+    tokenized_query = tokenize_query(query.replace(',', '')) 
+    # ex) "grape, pork and cheese" -> ['grape', 'pork', 'and', 'cheese]
+    # ex) "(pork and, cheese)" -> ['(', 'pork', 'and', 'cheese', ')']
     print("tokenized:", tokenized_query)
 
-    cleaned_query_boolean = parse_parens(tokenized_query)
-    # ex) "(pork and cheese)" -> [ ['pork', 'and', 'cheese'] ]
-    # ex) "(pork and cheese) or grape" -> [ ['pork', 'and', 'cheese'], 'or', 'grape' ]
-    print("cleaned boolean: ", cleaned_query_boolean)
+    comma_separated = [section.strip() for section in query.split(',') if section.strip()]
+    # ex) "cheese, pork and grape" -> ['cheese', 'pork and grape']
+
+    cleaned_query_boolean = []
+    for part in comma_separated: 
+        tokens = tokenize_query(part)
+        parsed = parse_parens(tokens)
+        print("each part: ", part, "->", parsed)
+        cleaned_query_boolean.append(parsed)
+    # ex) ['cheese', 'pork and grape'] -> ['cheese', ['pork', 'and', 'grape'] ]
+    
+    final_boolean = []
+    for i, parsed in enumerate(cleaned_query_boolean):
+        if i > 0:
+            final_boolean.append("or") # adds 'or' between every two "parts"
+        final_boolean.append(parsed) 
+    # ex) ['cheese', ['pork', 'and', 'grape'] ] -> ['cheese', 'or', ['pork', 'and', 'grape'] ]
 
     # Initialize variables
     query_vector = np.zeros(len(vocab))
@@ -85,16 +98,18 @@ def search():
         if term in vocab:
             idx = vocab.index(term)
             query_vector[idx] += 1
-            print(term, " is a vocab word")
-        elif term in ["or", "and", "not", "(", ")"]: #considering parentheses as booleans
+            print(term, "is a vocab word")
+        elif (not contains_booleans) and term in ["or", "and", "not", "(", ")"]: #considering parentheses as booleans
             contains_booleans = True
             print("contains booleans")
         else:
-            typo_suggestions.extend(find_closest(term, vocab)) #if mispelt, find typos suggestions
+            print("needed to find a suggestion for", term)
+            typo_suggestions.extend(find_closest(term, vocab)) #if misspelt, find typos suggestions
 
     query_vocab_terms = [term for term in tokenized_query if term in vocab]
     print("final list of vocab: ", query_vocab_terms)
     
+    print("typo suggestions: ", typo_suggestions)
     if not query_vocab_terms: #no vocab words 
         return jsonify({
             "results": [],
@@ -132,7 +147,7 @@ def search():
             food_items = list(food_dict.keys())
             title = (", ".join(food_items)).strip()
 
-            if title in already_seen: 
+            if title in already_seen or len(title) == len(food_items[0]): 
                 continue
             else: 
                 already_seen.add(title)

@@ -71,6 +71,8 @@ def boolean_or(query_vec, doc_term_bin):
   return results
 
 def tokenize_query(query):
+    # ex) "pork and cheese" -> ['pork', 'and', 'cheese]
+    # ex) "(pork and cheese)" -> ['(', 'pork', 'and', 'cheese', ')']
     tokens = []
     current_token = ""
     for char in query:
@@ -90,6 +92,8 @@ tokenized = tokenize_query("cheese and (grape or lemon)")
 print(tokenized)
 
 def parse_parens(tokens):
+    # ex) "(pork and cheese)" -> [ ['pork', 'and', 'cheese'] ]
+    # ex) "(pork and cheese) or grape" -> [ ['pork', 'and', 'cheese'], 'or', 'grape' ]
     stack = []
     curr = []
 
