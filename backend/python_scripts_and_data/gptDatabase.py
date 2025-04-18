@@ -19,13 +19,13 @@ write_lock = asyncio.Lock()       #Lock to control writing to file
 async def useChat_and_write(chat, food): 
   async with semaphore: 
     print("Exexcuting " + str(food) + " thread:")
-    myFormat = "Only reply with a comma separated list. Do this five times on separate lines. Each line must have at least ten adjectives."
+    myFormat = "Only reply with a comma separated list. Do this twenty times on separate lines. Each line must have at least five adjectives."
     prompt = "Using online resources, explain to me what " + str(food) + " tastes like."
     response = chat.responses.create(
       model="gpt-4.1-nano",
       instructions=myFormat,
       input=prompt,
-      max_output_tokens=200
+      max_output_tokens=600
     )
 
     async with write_lock: 

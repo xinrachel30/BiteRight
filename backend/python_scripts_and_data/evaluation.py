@@ -1,3 +1,5 @@
+import numpy as np
+
 #currently using substitution cost of 1, but may reconsider?
 #maybe nearby letters can be substitution cost 1, but non-nearby is 2?
 def edit_distance(word1, word2):
@@ -43,10 +45,10 @@ def find_closest(term, vocab):
   return typo_suggestions
 
 def parse_parens(tokens):
-stack = []
-curr = []
+  stack = []
+  curr = []
 
-for token in tokens:
+  for token in tokens:
     if token == "(":
         stack.append(curr)
         curr = []
@@ -56,7 +58,7 @@ for token in tokens:
         curr.append(subquery)
     else:
         curr.append(token)
-return curr
+  return curr
 
 #pre-condition: there are no commas in query_vec, lowercase
 def iterative_boolean(query, doc_term_bin, vocab):

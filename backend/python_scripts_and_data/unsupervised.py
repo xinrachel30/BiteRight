@@ -38,10 +38,10 @@ food_flavor_matrix = vectorizer.fit_transform([x for x in ff_data])
 u, s, v_trans = svds(food_flavor_matrix, k=100)
 
 ###This can be removed once we select an appropriate value of k
-# plt.plot(s[::-1])
-# plt.xlabel("Singular value number")
-# plt.ylabel("Singular value")
-# plt.show()  #Commented out once an appropriate k is chosen
+plt.plot(s[::-1])
+plt.xlabel("Singular value number")
+plt.ylabel("Singular value")
+plt.show()  #Commented out once an appropriate k is chosen
 
 '''
 Appropriate Value of k is set here (Affects number of latent flavor dims)
@@ -49,7 +49,7 @@ foods_compressed is (n x k) --> See food latent dim values
 flavors compressed.T is (m x k) --> See flavor latent dim values 
 s is a (k x k) byproduct --> It's useless. 
 '''
-foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=60)
+foods_compressed, s, flavors_compressed = svds(food_flavor_matrix, k=70)
 flavors_compressed = flavors_compressed.transpose()
 
 #Normalization step can occur here 
