@@ -5,6 +5,7 @@ from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from python_scripts_and_data.jaccard_sim import *
 from python_scripts_and_data.unsupervised import *
+from python_scripts_and_data.evaluation import *
 import numpy as np
 
 # ROOT_PATH for linking with all your files. 
@@ -14,7 +15,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # These are the DB credentials for your OWN MySQL
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
-LOCAL_MYSQL_USER = "root"
+LOCAL_MYSQL_USER = "wsl_root"
 LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
@@ -90,10 +91,7 @@ def search():
     query_vector_bin = np.where(query_vector > 0, 1, 0)
 
     if contains_booleans: 
-        if " or " in query: 
-            bool_mask = boolean_or(query_vector_bin, doc_term_binary)
-        else: 
-            bool_mask = boolean_and(query_vector_bin, doc_term_binary)
+        bool_mask = iterative_boolean(query_terms, doc_term_binary, vocab)
     else: 
         bool_mask = np.ones(len(complexRep), dtype=bool) #doesn't do anything
 
