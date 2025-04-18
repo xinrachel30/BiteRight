@@ -82,16 +82,6 @@
     font-family: 'Open Sans', sans-serif;
 }
 
-button[name="flavor-search"] {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-  }
-
 .input-box {
     position: fixed;
     margin-top: -8vh;
@@ -156,12 +146,36 @@ button[name="flavor-search"] {
     outline: 0;
 }
 
+button[name="flavor-search"] {
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    left: 25%;
+  }
+
+.checklist {
+    margin-top:20px;
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    height: 50%;
+    margin-left: 5%;
+    border-color: red;
+}
+
 #flavor-answer-box {
+    position: fixed;
+    left:25%;
+    text-align: center;
+    transform: translateX(-50%);
     overflow-y: auto;
-    max-height: calc(100vh - 40vh);
-    position: relative;
-    width: 600px;
-    margin-top: 50px;
+    max-height: 35vh;
+    width: 620px;
+    z-index: 997;
 }
 
 .divider {
@@ -169,15 +183,6 @@ button[name="flavor-search"] {
     background-color: black; 
     height: 80%;
     margin-top: 5vh;
-}
-
-.checklist {
-    margin-top:20px;
-    font-size: 16px;
-    font-family: 'Open Sans', sans-serif;
-    text-align: center;
-    height: 50%;
-    margin-left: 25px;
 }
 
 .episode-title {

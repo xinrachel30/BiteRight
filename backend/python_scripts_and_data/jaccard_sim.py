@@ -37,69 +37,6 @@ def create_doc_term(complex_items, vocab: list[str], mode:str) -> NDArray[Any]:
         raise Exception("mode must only equal \"bin\" or \"tf\"")
   return doc_term_rep
 
-#currently using substitution cost of 1, but may reconsider?
-#maybe nearby letters can be substitution cost 1, but non-nearby is 2?
-def edit_distance(word1, word2):
-  x, y = len(word1), len(word2) #dimensions
-  dp = [[0] * (y+1) for _ in range(x+1)] #number of rows is len(word1), number of cols is len(word2)
-
-  for i in range(x + 1): 
-    dp[i][0] = i
-  for i in range(y + 1): 
-    dp[0][i] = i
-  
-  for i in range(1, x+1): 
-    for j in range(1, y+1): 
-      if word1[i-1] == word2[j-1]: #same letter
-        dp[i][j] = dp[i-1][j-1] #no diff
-      else: 
-        dp[i][j] = min(dp[i][j - 1], dp[i - 1][j], dp[i - 1][j - 1]) + 1 
-  
-  return dp[x][y]
-
-def find_closest(term, vocab):
-  typo_suggestions = []
-
-  term = term.lower()
-  min_distance = float('inf')
-  second_min_distance = float('inf')
-  closest_word = ""
-  second_closest = ""
-
-  for vocab_word in vocab:
-      curr_distance = edit_distance(vocab_word, term)
-
-      if curr_distance < min_distance:
-          second_min_distance = min_distance
-          second_closest = closest_word
-          min_distance = curr_distance
-          closest_word = vocab_word
-      elif curr_distance < second_min_distance:
-          second_min_distance = curr_distance
-          second_closest = vocab_word
-  typo_suggestions.append(closest_word)
-  typo_suggestions.append(second_closest)  
-  return typo_suggestions
-
-def boolean_and(query_vec, doc_term_bin):
-  has_query = doc_term_bin[:, query_vec == 1]
-  results = np.all(has_query == 1, axis = 1)
-  return results
-
-def boolean_or(query_vec, doc_term_bin): 
-  has_query = doc_term_bin[:, query_vec == 1]
-  results = np.any(has_query == 1, axis = 1)
-  return results
-
-def construct_query_vec(query_words):
-  query_vector = np.zeros((len(vocab), ))
-  for word in query_words: 
-    if word in vocab: 
-      idx = vocab.index(word)
-      query_vector[idx] = 1
-  
-  return query_vector
-
 def set_jaccard_sim(query, doc_term_mat):
   jaccard_result = np.zeros((len(doc_term_mat), )) 
   doc_term_mat = np.where(doc_term_mat > 0, 1, 0)
