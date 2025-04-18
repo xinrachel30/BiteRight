@@ -49,8 +49,14 @@ def episodes_search():
 @app.route("/flavor-search")
 def flavor_search(): 
     selected_flavors = request.args.getlist("flavors")
-    ranking = closest_flavor_calc(selected_flavors)
-    return jsonify({"results": ranking[:10]})
+    ranking_dict = closest_flavor_calc(selected_flavors)
+    ranking = list(ranking_dict.keys())
+
+    # sims_scores contains the raw information for the entries
+    # corresponding in ranking. Use as desired
+    sims_scores = list(ranking_dict.values())
+    
+    return jsonify({"results": ranking})
 
 @app.route('/search')
 def search():
