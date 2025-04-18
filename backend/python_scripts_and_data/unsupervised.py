@@ -76,14 +76,14 @@ def closest_food_profile(food_list, food_latent_rep=foods_compressed_norm):
     for food in food_list: 
         foodIdx = vocab.index(food)
         query += food_latent_rep[foodIdx]
-    #query_norm = normalize(query)
     sims = np.dot(food_latent_rep, query.T)
-    #print(sims.shape)
     desc_order = np.argsort(sims)[::-1]
-    if len(food_list) == 1: 
-        #print(vocab[desc_order[0]])
-        desc_order = desc_order[1:] #Exclude matching food word
-    closest_foods = [vocab[i] for i in desc_order]
+    closest_foods = {}
+    for i in desc_order:
+        if vocab[i] in food_list: continue
+        closest_foods.update({vocab[i]: sims[i]})
+        if len(closest_foods) == 10: 
+            break 
     return closest_foods
 
 '''
@@ -94,7 +94,6 @@ Requires flavor_list to be preprocessed:
 Returns an ordering of foods closest to flavor profile
 '''
 def closest_flavor_calc(flavor_list, food_latent_rep=foods_compressed_norm):
-    #query = np.zeros((len(flavors),))
     flav_str = ""
     for flav in flavor_list: 
         flav_str += (flav + " ")
@@ -102,31 +101,32 @@ def closest_flavor_calc(flavor_list, food_latent_rep=foods_compressed_norm):
     query_vec = np.dot(query, flavors_compressed)
     query_norm = normalize(query_vec).flatten()
     sims = np.dot(food_latent_rep, query_norm.T)
-    #print(sims.shape)
     desc_order = np.argsort(sims)[::-1]
-    closest_foods = [vocab[i] for i in desc_order]
+    closest_foods = [(vocab[i], sims[i]) for i in desc_order]
+    closest_foods = closest_foods[:10]
+    closest_foods = dict(closest_foods)
     return closest_foods
 
 print("Tastes like an apple")
-print(str(closest_food_profile(["apple"], foods_compressed_norm)[:10]))
+print(str(list(closest_food_profile(["apple"], foods_compressed_norm).keys())[:10]))
 print("\n")
 
 print("Tastes like an apple and ice cream")
-print(str(closest_food_profile(["apple", "ice cream"], foods_compressed_norm)[:10]))
+print(str(list(closest_food_profile(["apple", "ice cream"], foods_compressed_norm).keys())[:10]))
 print("\n")
 
 print("Tastes like spaghetti, apple, and cilantro")
-print(str(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm)[:10]))
+print(str(list(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm).keys())[:10]))
 print("\n")
 
-print("Tastes sweet")
-print(str(closest_flavor_calc(["sweet"], foods_compressed_norm)[:10]))
-print("\n")
+# print("Tastes sweet")
+# print(str(list(closest_flavor_calc(["sweet"], foods_compressed_norm).keys())[:10]))
+# print("\n")
 
-print("Tastes sweet and spicy")
-print(str(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm)[:10]))
-print("\n")
+# print("Tastes sweet and spicy")
+# print(str(list(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm).keys())[:10]))
+# print("\n")
 
-print("Tastes robust, sugary, greasy, and rich")
-print(str(closest_flavor_calc(["robust", "sugary", "greasy", "rich"], foods_compressed_norm)[:10]))
-print("\n")
+# print("Tastes robust, sugary, greasy, and rich")
+# print(str(list(closest_flavor_calc(["robust", "sugary", "greasy", "rich"], foods_compressed_norm).keys())[:10]))
+# print("\n")
