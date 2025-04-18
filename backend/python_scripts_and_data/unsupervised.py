@@ -107,17 +107,17 @@ def closest_flavor_calc(flavor_list, food_latent_rep=foods_compressed_norm):
     closest_foods = dict(closest_foods)
     return closest_foods
 
-print("Tastes like an apple")
-print(str(list(closest_food_profile(["apple"], foods_compressed_norm).keys())[:10]))
-print("\n")
+# print("Tastes like an apple")
+# print(str(list(closest_food_profile(["apple"], foods_compressed_norm).keys())[:10]))
+# print("\n")
 
-print("Tastes like an apple and ice cream")
-print(str(list(closest_food_profile(["apple", "ice cream"], foods_compressed_norm).keys())[:10]))
-print("\n")
+# print("Tastes like an apple and ice cream")
+# print(str(list(closest_food_profile(["apple", "ice cream"], foods_compressed_norm).keys())[:10]))
+# print("\n")
 
-print("Tastes like spaghetti, apple, and cilantro")
-print(str(list(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm).keys())[:10]))
-print("\n")
+# print("Tastes like spaghetti, apple, and cilantro")
+# print(str(list(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm).keys())[:10]))
+# print("\n")
 
 # print("Tastes sweet")
 # print(str(list(closest_flavor_calc(["sweet"], foods_compressed_norm).keys())[:10]))
