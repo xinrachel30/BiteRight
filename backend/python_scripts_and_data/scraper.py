@@ -8,9 +8,17 @@ reddit_read_only = praw.Reddit(client_id="CYzoKYjkZSnH9r5vRUz8fw", #Jordan's cli
                     user_agent="Biteright") #Jordan's user agent
 
 thread_urls = []
-thread_urls.append("https://www.reddit.com/r/EatCheapAndHealthy/comments/oo8uyu/what_are_some_stupidly_easy_food_pairings_that_go/")
-thread_urls.append("https://www.reddit.com/r/Cooking/comments/oodevv/what_weird_food_combinations_have_you_been_served/?chainedPosts=t3_oo8uyu")
-thread_urls.append("https://www.reddit.com/r/AskReddit/comments/jgoc5b/what_food_pairing_sounds_absurd_but_tastes_fine/)
+thread_urls.append("https://www.reddit.com/r/EatCheapAndHealthy/comments/oo8uyu/what_are_some_stupidly_easy_food_pairings_that_go/") # (1.9K comments)
+thread_urls.append("https://www.reddit.com/r/Cooking/comments/oodevv/what_weird_food_combinations_have_you_been_served/?chainedPosts=t3_oo8uyu") # (987 comments)
+thread_urls.append("https://www.reddit.com/r/AskReddit/comments/jgoc5b/what_food_pairing_sounds_absurd_but_tastes_fine/") # (1.6K comments)
+# following links added 4/17
+thread_urls.append("https://www.reddit.com/r/AskReddit/comments/30aegf/what_two_weird_food_combinations_really_taste/") # (1.1K comments)
+thread_urls.append("https://www.reddit.com/r/Cooking/comments/15gpnyl/best_food_combos/") # (33 comments)
+thread_urls.append("https://www.reddit.com/r/AskReddit/comments/vza7nr/what_food_combos_are_surprisingly_good/?chainedPosts=t3_15gpnyl") # (2.5K comments)
+thread_urls.append("https://www.reddit.com/r/foodhacks/comments/16njbvm/what_are_your_weird_bingefood_combos/?chainedPosts=t3_vza7nr%2Ct3_15gpnyl") # (1.1K comments)
+thread_urls.append("https://www.reddit.com/r/nutrition/comments/mkgpf8/is_there_a_list_of_foods_that_go_together/") # (145 comments)
+thread_urls.append("https://www.reddit.com/r/Cooking/comments/1cxeom1/what_is_a_simple_food_combo_you_never_thought_to/") # (2.2K comments)
+
 
 #Get all comments regardless of nested structure of comment replies
 def getComments(ledger : dict[str,int], comments) -> dict[str,int]: 
