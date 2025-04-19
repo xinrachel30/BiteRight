@@ -15,6 +15,20 @@
 .right {
     right: 0;
 }
+
+.full-body-container::before {
+    content: "";
+    height:100%;
+    top:0;
+    left:0;
+    width:100%;
+    position: absolute;
+    background-image: url("images/background.jpg");
+    background-size: cover; 
+    background-position: center;
+    opacity:0.2; 
+    z-index:-1;
+}
   
 .centered {
     position: absolute;
@@ -24,8 +38,15 @@
     text-align: center;
 }
 
+html, body {
+    height:100%;
+    margin:0; 
+    padding:0;
+}
+
 .full-body-container {
-    position: absolute;
+    position: relative;
+    z-index:0;
     top: 0;
     left: 0;
     right: 0;
@@ -84,7 +105,7 @@
 
 .input-box {
     position: fixed;
-    margin-top: -8vh;
+    margin-top: -12vh;
     left: 50%;
     transform: translateX(-50%);
     border-radius: 50px;
@@ -98,13 +119,14 @@
 }
 
 #typo-suggestions {
-    position: fixed;
+    position: relative;
+    top:-6vh;
     left: 50%;
     transform: translateX(-50%);
     font-style: italic;
     font-family: 'Open Sans', sans-serif;
     text-align: left;
-    color: darkgray;
+    color: black;
     height: 4vh;
     width: 620px;
     z-index: 999;
@@ -112,12 +134,13 @@
 
 #answer-box {
     position: fixed;
+    top:-8vh;
     margin-top: 50px;
     left: 50%;
     transform: translateX(-50%);
     overflow-y: auto;
-    max-height: 42vh;
-    width: 620px;
+    max-height: calc(100vh - 45vh);
+    width: 40vw;
     z-index: 997;
 }
 
@@ -195,10 +218,12 @@ button[name="flavor-search"] {
 
 .search-result {
     padding: 15px;
+    padding-bottom:5px;
     margin: 5px 0;
     border: 1px solid #ddd;
     border-radius: 8px;
     background: white;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .food-pairing {

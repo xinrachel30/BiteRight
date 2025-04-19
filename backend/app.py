@@ -149,12 +149,16 @@ def search():
 
             if title in already_seen or len(title) == len(food_items[0]): 
                 continue
-            else: 
-                already_seen.add(title)
+
+            already_seen.add(title)
+            flavors = list(closest_flavors_given_foods(food_items).keys())[:3]
+            flavor_desc = "" + flavors[0] + ", " + flavors[1] + ", and " + flavors[2]
+            print("FLAVOR_DESC:", flavor_desc)
 
             results.append({
                 'title': title,
-                'similarity': float(score)
+                'similarity': float(score), 
+                'flavor_desc': flavor_desc
             })
 
     # Sort by similarity score descending

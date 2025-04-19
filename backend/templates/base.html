@@ -88,10 +88,11 @@
                 });
         }
     
-        function answerBoxTemplate(title, similarity) {
+        function answerBoxTemplate(title, similarity, flavor_desc) {
             return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
                         <p class='similarity-score'>Match: ${(similarity * 100).toFixed(1)}%</p>
+                        <p class='flavor_description'>${flavor_desc}</p>
                     </div>`;
         }
     
@@ -131,7 +132,8 @@
                         let tempDiv = document.createElement("div");
                         tempDiv.innerHTML = answerBoxTemplate(
                             result.title,
-                            result.similarity
+                            result.similarity,
+                            result.flavor_desc
                         );
                         document.getElementById("answer-box").appendChild(tempDiv);
                     });
@@ -143,5 +145,5 @@
                 });
         }
     </script>
-    
+    </div>
 </body>        
