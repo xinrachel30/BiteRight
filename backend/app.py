@@ -161,8 +161,10 @@ def search():
 
             f_jaccard = "{:.2f}".format(jaccard_scores[idx])
             f_cosine = "{:.2f}".format(cosine_scores[idx])
+            f_combined = "{:.2f}".format(combined[idx] * 100)
 
-            score_txt = "jaccard: " + str(f_jaccard) + " cosine: " + str(str(f_cosine))
+            score_txt = "(jaccard: " + f_jaccard + ", cosine: " + f_cosine + ")"
+            score_txt = f_combined + "% Match " + score_txt
 
             results.append({
                 'title': title,
