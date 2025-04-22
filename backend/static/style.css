@@ -1,86 +1,62 @@
-.split {
-    height: 100%;
-    width: 50%;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    overflow-y: hidden;
-    padding-top: 20px;
-  }
+/* Used AI to reformat this file because it was becoming very hard to test different options due to overlap and redundancy */
 
-.left {
-    left: 0;
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
-  
-.right {
-    right: 0;
+
+.full-body-container {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
 }
 
 .full-body-container::before {
     content: "";
-    height:100%;
-    top:0;
-    left:0;
-    width:100%;
     position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url("images/background.jpg");
-    background-size: cover; 
+    background-size: cover;
     background-position: center;
-    opacity:0.2; 
-    z-index:-1;
+    opacity: 0.2;
+    z-index: -1;
 }
-  
+
+.split {
+    position: fixed;
+    top: 0;
+    width: 33.33%;
+    height: 100%;
+    z-index: 1;
+    overflow-y: hidden;
+    padding-top: 20px;
+}
+
+.left {
+    left: 0;
+    width:33.33%;
+}
+
+.right {
+    right: 0;
+    width:66.66%
+}
+
 .centered {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-}
-
-html, body {
-    height:100%;
-    margin:0; 
-    padding:0;
-}
-
-.full-body-container {
-    position: relative;
-    z-index:0;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-}
-
-#google-c {
-    color: #4285F4;
-}
-
-#google-s {
-    color: #DB4437;
-}
-
-#google-4 {
-    color: #F4B400;
-}
-
-#google-3 {
-    color: #4285F4;
-}
-
-#google-0-1 {
-    color: #0F9D58;
-}
-
-#google-0-2 {
-    color: #DB4437;
 }
 
 .google-colors {
@@ -91,37 +67,56 @@ html, body {
 }
 
 .google-colors h1 {
-    margin-bottom: 0;
-    margin-right: 3px;
+    margin: 0 3px 0 0;
 }
 
+#google-c { color: #4285F4; }
+#google-s { color: #DB4437; }
+#google-4 { color: #F4B400; }
+#google-3 { color: #4285F4; }
+#google-0-1 { color: #0F9D58; }
+#google-0-2 { color: #DB4437; }
+
 .instruction {
-    padding-top: 22vh;
-    padding-left: 25px; 
-    padding-right: 25px;
+    padding: 22vh 25px 0;
     font-size: 24px;
     font-family: 'Open Sans', sans-serif;
+    text-align: center;
 }
 
 .input-box {
     position: fixed;
-    margin-top: -12vh;
+    top: -18vh;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    width: 60vw;
+    padding: 12px;
     border-radius: 50px;
     border: 1px solid black;
-    display: flex;
-    padding: 12px;
-    width: 600px;
-    z-index: 1000;
     background: white;
-    overflow:hidden;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.input-box input {
+    width: 100%;
+    margin-left: 10px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+}
+
+.input-box img {
+    height: 20px;
+    width: 20px;
 }
 
 #typo-suggestions {
-    position: relative;
-    top:-6vh;
-    left: 50%;
+    position: fixed;
+    top: -13vh;
+    left: -13vw;
     transform: translateX(-50%);
     font-style: italic;
     font-family: 'Open Sans', sans-serif;
@@ -134,78 +129,44 @@ html, body {
 
 #answer-box {
     position: fixed;
-    top:-8vh;
-    margin-top: 50px;
+    top: -10vh;
     left: 50%;
     transform: translateX(-50%);
-    overflow-y: auto;
+    width: 50vw;
     max-height: calc(100vh - 45vh);
-    width: 40vw;
+    overflow-y: auto;
     z-index: 997;
-}
-
-#answer-box:empty {
-    position:fixed;
-}
-
-
-.input-box img {
-    height: 20px;
-    width: 20px;
-}
-
-.top-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: -40px;
-}
-
-.input-box input {
-    width: 100%;
-    margin-left: 10px;
-    font-size: 16px;
-    border: none;
-    outline: 0;
-}
-
-button[name="flavor-search"] {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-    left: 25%;
-  }
-
-.checklist {
-    margin-top:20px;
-    font-size: 16px;
-    font-family: 'Open Sans', sans-serif;
-    text-align: left;
-    height: 50%;
-    margin-left: 5%;
-    border-color: red;
 }
 
 #flavor-answer-box {
     position: fixed;
-    left:25%;
-    text-align: center;
+    top: 35vh;
+    left: 20vw;
     transform: translateX(-50%);
+    width: 20vw;
+    max-height: 60vh;
     overflow-y: auto;
-    max-height: 35vh;
-    width: 620px;
+    text-align: center;
     z-index: 997;
 }
 
+.checklist {
+    margin: 20px 0 0 5%;
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    height: 50%;
+    border-color: red;
+}
+
 .divider {
+    position:fixed;
     width: 3px;
-    background-color: black; 
     height: 80%;
     margin-top: 5vh;
+    background-color: black;
+    left: 33.33%;
+    z-index:2;
 }
 
 .episode-title {
@@ -218,12 +179,10 @@ button[name="flavor-search"] {
 
 .search-result {
     padding: 15px;
-    padding-bottom:5px;
     margin: 5px 0;
     border: 1px solid #ddd;
     border-radius: 8px;
     background: white;
-    font-family: 'Open Sans', sans-serif;
 }
 
 .food-pairing {
@@ -235,4 +194,15 @@ button[name="flavor-search"] {
     margin: 0;
     color: #666;
     font-size: 0.9em;
+}
+
+/* Button */
+button[name="flavor-search"] {
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
 }
