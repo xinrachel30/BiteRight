@@ -144,18 +144,23 @@ def search():
     # Get top results where similarity > 0
     results = []
     already_seen = set() #remove duplicates
-    
+
+    sorted_query_vocab = tuple(sorted(query_vocab_terms))
+
     for idx, score in enumerate(combined):
         if score > 0:
             true_idx = indices[idx]
             comment_id, (food_dict, _) = complex_items[true_idx]
             food_items = list(food_dict.keys())
-            title = (", ".join(food_items)).strip()
 
-            if title in already_seen or len(food_items) == 0 or len(title) == len(food_items[0]): 
+            sorted_food_items = sorted(food_items)
+            title = ", ".join(sorted_food_items).strip()
+            key = tuple(sorted_food_items)
+
+            if key in already_seen or len(food_items) == 0 or key == sorted_query_vocab: 
                 continue
 
-            already_seen.add(title)
+            already_seen.add(key)
             flavors = list(closest_flavors_given_foods(food_items).keys())[:3]
             flavor_desc = "" + flavors[0] + ", " + flavors[1] + ", and " + flavors[2]
 
