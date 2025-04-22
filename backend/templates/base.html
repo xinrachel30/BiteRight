@@ -8,15 +8,16 @@
 
 <body>
 
-    <div class="top-text">
-        <div class="google-colors">
-            <h1 id="site-name"><span style="color: darkcyan;">Bite</span><span style="color: darkmagenta;">Right</span></h1>
-        </div>
-    </div>
-
     <div class="full-body-container">
+
+        <div class="top-text">
+            <div class="google-colors">
+                <h1 id="site-name"><span style="color: darkcyan;">Bite</span><span style="color: darkmagenta;">Right</span></h1>
+            </div>
+        </div>
+
         <div class="split left">
-            <div class = "instruction">To use the <span style="font-weight: bold; color: darkmagenta;">flavor search</span>, select as many flavors as you would like the dish to have. Get creative!</div>
+            <div class = "instruction">To specify which <span style="font-weight: bold; color: darkmagenta;">flavors</span> you want o have, specify from as many of the options below!</div>
             <div class="checklist">
                 <form action="/flavor-search" id="flavor_form">
                     <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
@@ -88,6 +89,7 @@
                     console.error("Error:", error);
                     box.innerHTML = "<p>Error fetching flavor matches</p>";
                 });
+                filterText();
         }
 
     
@@ -113,8 +115,13 @@
             document.getElementById("typo-suggestions").innerHTML = "";
     
             if (!query) return;
+
+            const checkboxes = document.querySelectorAll("input[name='flavors']:checked");
+            const selectedFlavors = Array.from(checkboxes).map(cb => cb.value);
+            const params = new URLSearchParams({ query: query });
+            selectedFlavors.forEach(flavor => params.append("flavors", flavor));
     
-            fetch("/search?" + new URLSearchParams({ query: query }).toString())
+            fetch("/search?" + params.toString())
                 .then((response) => response.json())
                 .then((data) => {
                     const results = data.results || data;

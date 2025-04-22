@@ -126,9 +126,9 @@ print("Tastes like an apple")
 print(str(list(closest_food_profile(["apple"], foods_compressed_norm).keys())[:10]))
 print("\n")
 
-# print("Tastes like an apple and ice cream")
-# print(str(list(closest_food_profile(["apple", "ice cream"], foods_compressed_norm).keys())[:10]))
-# print("\n")
+print("Tastes like an apple and ice cream")
+print(str(list(closest_food_profile(["apple", "ice cream"], foods_compressed_norm).keys())[:10]))
+print("\n")
 
 print("Tastes like spaghetti, apple, and cilantro")
 print(str(list(closest_food_profile(["spaghetti", "apple", "cilantro"], foods_compressed_norm).keys())[:10]))
@@ -139,14 +139,13 @@ print(str(list(closest_flavor_calc(["sweet"], foods_compressed_norm).keys())[:10
 print("\n")
 
 print("Apple and peach")
-print(str(list(closest_flavors_given_foods(["apple", "peach"]).keys())[:3]))
+print((closest_flavors_given_foods(["apple", "peach"])["sugary"]))
 print("\n")
 
+print("Tastes sweet and spicy")
+print(str(list(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm).keys())[:10]))
+print("\n")
 
-# print("Tastes sweet and spicy")
-# print(str(list(closest_flavor_calc(["sweet", "spicy"], foods_compressed_norm).keys())[:10]))
-# print("\n")
-
-# print("Tastes robust, sugary, greasy, and rich")
-# print(str(list(closest_flavor_calc(["robust", "sugary", "greasy", "rich"], foods_compressed_norm).keys())[:10]))
-# print("\n")
+print("Tastes robust, sugary, greasy, and rich")
+print(str(list(closest_flavor_calc(["robust", "sugary", "greasy", "rich"], foods_compressed_norm).keys())[:10]))
+print("\n")

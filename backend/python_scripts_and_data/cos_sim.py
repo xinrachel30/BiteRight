@@ -41,7 +41,8 @@ def cosine_create_inv_idx(food_arr_uv):
             if word in inv_idx:
                 inv_idx[word].append((i,uv))
             else:
-                inv_idx[word] = [(i,uv)]
+                tf = math.log2(1 + max(0, uv))
+                inv_idx[word] = [(i, tf)]
     return inv_idx
 
 #compute idf values = 1/num docs containing term
@@ -117,6 +118,9 @@ def main_cos(query, filtered_matrix, indices):
     assert "cheese" in idfs
 
     norms = cosine_doc_norms(inv_idx, n_comms, idfs)
+
+    query_terms = [term.strip().lower() for term in query.split(",") if term.strip()]
+    query_text = " ".join(query_terms)
     #res = [(sim, doc id)] in decreasing order
     res = cosine_sim(query,inv_idx,idfs,norms)
     i=0
@@ -128,10 +132,13 @@ def main_cos(query, filtered_matrix, indices):
 
     # << changes >> 
     cosine_score_vec = np.zeros(len(filtered_matrix))
-    for score, doc_id in res: # boolean results should apply to cosine as well
+    for score, doc_id in res: # boolean results apply to cosine as well
         if doc_id in indices:
             idx_in_filtered = np.where(indices == doc_id)[0][0]
-            cosine_score_vec[idx_in_filtered] = score
+            food_len = len(food_arr_uv[doc_id][0])
+            penalty = 1 / math.sqrt(food_len)  # really small penalty for length
+            cosine_score_vec[idx_in_filtered] = score * penalty
+
 
     max_value = cosine_score_vec.max()
     if max_value > 0:

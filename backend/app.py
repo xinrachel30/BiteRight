@@ -9,6 +9,8 @@ from python_scripts_and_data.unsupervised import *
 from python_scripts_and_data.evaluation import *
 from python_scripts_and_data.cos_sim import *
 import numpy as np
+import colorama
+from colorama import Fore, Style
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -63,6 +65,9 @@ def flavor_search():
 @app.route('/search')
 def search():
     query = request.args.get('query', '').lower()    
+    selected_flavors = request.args.getlist("flavors")
+
+    flavors_wanted = set([f.lower() for f in selected_flavors])
     if not query:
         return jsonify([])
 
@@ -108,7 +113,9 @@ def search():
             typo_suggestions.extend(find_closest(term, vocab)) #if misspelt, find typos suggestions
 
     query_vocab_terms = [term for term in tokenized_query if term in vocab]
-    print("final list of vocab: ", query_vocab_terms)
+    # flavors_have = closest_food_profile(query_vocab_terms)
+
+    print("final list of vocab in query: ", query_vocab_terms)
     
     print("typo suggestions: ", typo_suggestions)
     if not query_vocab_terms: #no vocab words 
@@ -139,8 +146,9 @@ def search():
     
     cosine_scores = main_cos(query, filtered_matrix, indices)
 
-    combined = 0.4 * jaccard_scores + 0.6 * cosine_scores
-    
+    jaccard_weight = 0.6 # change this value to test best combination
+    combined = jaccard_weight * jaccard_scores + (1 - jaccard_weight) * cosine_scores
+
     # Get top results where similarity > 0
     results = []
     already_seen = set() #remove duplicates
@@ -157,33 +165,59 @@ def search():
             title = ", ".join(sorted_food_items).strip()
             key = tuple(sorted_food_items)
 
-            if key in already_seen or len(food_items) == 0 or key == sorted_query_vocab: 
+            if key in already_seen or len(food_items) == 0 or key == sorted_query_vocab or jaccard_scores[idx] == 0: 
                 continue
-
+                # skipping over entries where jaccard is 0 is a temporary solution
             already_seen.add(key)
-            flavors = list(closest_flavors_given_foods(food_items).keys())[:3]
-            flavor_desc = "" + flavors[0] + ", " + flavors[1] + ", and " + flavors[2]
 
+            result_flavor_dict = closest_flavors_given_foods(food_items)
+            result_flavor_set = set(f.lower() for f in result_flavor_dict.keys())
+
+            combined_score = combined[idx]
+            flavor_score = 0
+            if flavors_wanted:
+                print(Fore.BLUE + "User wants flavors:", flavors_wanted)
+                print("Predicted flavors:", result_flavor_set)
+
+                intersection = flavors_wanted & result_flavor_set
+                numerator = sum(result_flavor_dict[item] for item in intersection)
+                denominator = len(intersection)
+
+                if denominator > 0:
+                    flavor_score = numerator / denominator
+                    flavor_weight = 0.4
+                    combined_score = flavor_score * flavor_weight + combined_score * (1 - flavor_weight)
+
+            # format flavor desc
+            top_flavors = list(result_flavor_dict.keys())[:3]
+            flavor_desc = ", ".join(top_flavors[:-1]) + ", and " + top_flavors[-1] if len(top_flavors) >= 3 else ", ".join(top_flavors)
+
+            # format scores
             f_jaccard = "{:.2f}".format(jaccard_scores[idx])
             f_cosine = "{:.2f}".format(cosine_scores[idx])
-            f_combined = "{:.2f}".format(combined[idx] * 100)
+            f_flavor = "{:.2f}".format(flavor_score * 100)
+            f_combined = "{:.2f}".format(combined_score * 100)
 
-            score_txt = "(jaccard: " + f_jaccard + ", cosine: " + f_cosine + ")"
-            score_txt = f_combined + "% Match " + score_txt
+            score_txt = f"Trends Match: {f_combined}% (jaccard: {f_jaccard}, cosine: {f_cosine})"
+            if flavors_wanted:
+                score_txt += f"\nFlavor Match: {f_flavor}%"
 
             results.append({
                 'title': title,
-                'similarity': score_txt, 
-                'combined_score': combined[idx],
+                'similarity': score_txt,
+                'combined_score': combined_score,
                 'flavor_desc': flavor_desc
             })
 
-    # Sort by similarity score descending
     results.sort(key=lambda x: x['combined_score'], reverse=True)
     top_10 = results[:10]
-    
+
     for result in top_10:
         result.pop('combined_score', None)
+        print(Fore.BLUE + "User wants flavors:", flavors_wanted)
+        print("Predicted flavors:", result["flavor_desc"])
+        print(Style.RESET_ALL)
+
 
     return jsonify({
         "results": top_10, 
@@ -193,3 +227,8 @@ def search():
 
 if 'DB_NAME' not in os.environ:
     app.run(debug=True,host="0.0.0.0",port=5000)
+
+
+
+
+    
