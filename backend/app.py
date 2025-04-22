@@ -7,6 +7,7 @@ from python_scripts_and_data.jaccard_sim import *
 from python_scripts_and_data.jaccard_sim import create_doc_term
 from python_scripts_and_data.unsupervised import *
 from python_scripts_and_data.evaluation import *
+from python_scripts_and_data.cos_sim import *
 import numpy as np
 
 # ROOT_PATH for linking with all your files. 
@@ -133,39 +134,52 @@ def search():
     print("filtered matrix shape:", filtered_matrix.shape)
     indices = np.where(bool_mask)[0]
 
-    # Get similarity scores using generalized Jaccard
-    similarity_scores = gen_jaccard_sim(query_vector, filtered_matrix)
+    # Get Jaccard scores
+    jaccard_scores = gen_jaccard_sim(query_vector, filtered_matrix)
+    
+    cosine_scores = main_cos(query, filtered_matrix, indices)
+
+    combined = 0.4 * jaccard_scores + 0.6 * cosine_scores
     
     # Get top results where similarity > 0
     results = []
     already_seen = set() #remove duplicates
     
-    for idx, score in enumerate(similarity_scores):
+    for idx, score in enumerate(combined):
         if score > 0:
             true_idx = indices[idx]
             comment_id, (food_dict, _) = complex_items[true_idx]
             food_items = list(food_dict.keys())
             title = (", ".join(food_items)).strip()
 
-            if title in already_seen or len(title) == len(food_items[0]): 
+            if title in already_seen or len(food_items) == 0 or len(title) == len(food_items[0]): 
                 continue
 
             already_seen.add(title)
             flavors = list(closest_flavors_given_foods(food_items).keys())[:3]
             flavor_desc = "" + flavors[0] + ", " + flavors[1] + ", and " + flavors[2]
-            print("FLAVOR_DESC:", flavor_desc)
+
+            f_jaccard = "{:.2f}".format(jaccard_scores[idx])
+            f_cosine = "{:.2f}".format(cosine_scores[idx])
+
+            score_txt = "jaccard: " + str(f_jaccard) + " cosine: " + str(str(f_cosine))
 
             results.append({
                 'title': title,
-                'similarity': float(score), 
+                'similarity': score_txt, 
+                'combined_score': combined[idx],
                 'flavor_desc': flavor_desc
             })
 
     # Sort by similarity score descending
-    results.sort(key=lambda x: x['similarity'], reverse=True)
+    results.sort(key=lambda x: x['combined_score'], reverse=True)
+    top_10 = results[:10]
+    
+    for result in top_10:
+        result.pop('combined_score', None)
 
     return jsonify({
-        "results": results[:10], 
+        "results": top_10, 
         "suggestions": typo_suggestions 
     })  # Return top 10 results
 

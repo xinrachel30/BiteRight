@@ -56,11 +56,17 @@ def gen_jaccard_sim(query, doc_term_mat):
 
   w_doc_term_mat = np.zeros(doc_term_mat.shape)
   for rIdx in range(0, len(doc_term_mat)):
-    w_row = doc_term_mat[rIdx] / np.sum(doc_term_mat[rIdx])
+    row_sum = np.sum(doc_term_mat[rIdx])
+    if row_sum == 0:
+        w_row = np.zeros_like(doc_term_mat[rIdx])
+    else:
+        w_row = doc_term_mat[rIdx] / row_sum
+
     w_doc_term_mat[rIdx] = w_row
 
   w_query_expand = np.tile(w_query, (len(w_doc_term_mat), 1))
-  termWeights = np.minimum(w_query_expand, w_doc_term_mat) / np.maximum(w_query_expand, w_doc_term_mat)
+  max_values = np.maximum(w_query_expand, w_doc_term_mat)
+  termWeights = np.where(max_values != 0, np.minimum(w_query_expand, w_doc_term_mat) / max_values, 0)
 
   query_expand = np.tile(query, (len(doc_term_mat), 1))
   qUdtMask = np.where((doc_term_mat+query_expand) > 0, 1, 0)

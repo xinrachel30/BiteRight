@@ -91,7 +91,7 @@
         function answerBoxTemplate(title, similarity, flavor_desc) {
             return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
-                        <p class='similarity-score'>Match: ${(similarity * 100).toFixed(1)}%</p>
+                        <p class='similarity:'>Match: ${similarity}</p>
                         <p class='flavor_description'>${flavor_desc}</p>
                     </div>`;
         }
