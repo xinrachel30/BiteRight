@@ -165,15 +165,19 @@ def search():
             title = ", ".join(sorted_food_items).strip()
             key = tuple(sorted_food_items)
 
-            if key in already_seen or len(food_items) == 0 or key == sorted_query_vocab or jaccard_scores[idx] == 0: 
+            if key in already_seen or len(food_items) == 0 or key == sorted_query_vocab: 
                 continue
-                # skipping over entries where jaccard is 0 is a temporary solution
+            if jaccard_scores[idx] == 0: 
+                continue
+            if len(food_items) > 6: 
+                continue
             already_seen.add(key)
 
             result_flavor_dict = closest_flavors_given_foods(food_items)
             result_flavor_set = set(f.lower() for f in result_flavor_dict.keys())
 
-            combined_score = combined[idx]
+            flavor_weight = 0.5
+            combined_score = combined[idx] * (1-flavor_weight)
             flavor_score = 0
             if flavors_wanted:
                 print(Fore.BLUE + "User wants flavors:", flavors_wanted)
@@ -185,7 +189,6 @@ def search():
 
                 if denominator > 0:
                     flavor_score = numerator / denominator
-                    flavor_weight = 0.4
                     combined_score = flavor_score * flavor_weight + combined_score * (1 - flavor_weight)
 
             # format flavor desc
@@ -197,10 +200,11 @@ def search():
             f_cosine = "{:.2f}".format(cosine_scores[idx])
             f_flavor = "{:.2f}".format(flavor_score * 100)
             f_combined = "{:.2f}".format(combined_score * 100)
+            f_without_flavor = "{:.2f}".format(combined[idx] * 100)
 
-            score_txt = f"Trends Match: {f_combined}% (jaccard: {f_jaccard}, cosine: {f_cosine})"
+            score_txt = f"Trends Match: {f_without_flavor}% (jaccard: {f_jaccard}, cosine: {f_cosine})"
             if flavors_wanted:
-                score_txt += f"\nFlavor Match: {f_flavor}%"
+                score_txt += f", Flavor Match: {f_flavor}%"
 
             results.append({
                 'title': title,

@@ -154,7 +154,7 @@ html, body {
     margin: 20px 0 0 5%;
     left:2vw;
     position:relative;
-    font-size: 16px;
+    font-size: 18px;
     font-family: 'Open Sans', sans-serif;
     text-align: left;
     height: 50%;
@@ -173,17 +173,18 @@ html, body {
 }
 
 .episode-title {
-    font-family: 'Kanit', sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .episode-desc {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .search-result {
     padding: 15px;
     margin: 5px 0;
     border: 1px solid #ddd;
+    font-family: 'Open Sans', sans-serif;
     border-radius: 8px;
     background: white;
 }
