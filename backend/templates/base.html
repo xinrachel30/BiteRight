@@ -12,12 +12,15 @@
 
         <div class="top-text">
             <div class="google-colors">
-                <h1 id="site-name"><span style="color: darkcyan;">Bite</span><span style="color: darkmagenta;">Right</span></h1>
+                <h1 id="site-name"><span style="color: darkcyan;">Bite</span><span
+                        style="color: darkmagenta;">Right</span></h1>
             </div>
         </div>
 
         <div class="split left">
-            <div class = "instruction">To specify which <span style="font-weight: bold; color: darkmagenta;">flavors</span> you want to have, specify from as many of the options below!</div>
+            <div class="instruction">To specify which <span
+                    style="font-weight: bold; color: darkmagenta;">flavors</span> you want to have, specify from as many
+                of the options below!</div>
             <div class="checklist">
                 <form action="/flavor-search" id="flavor_form">
                     <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
@@ -32,7 +35,9 @@
         <div class="divider"></div>
 
         <div class="split right">
-            <div class = "instruction">To use the <span style="font-weight: bold; color: darkcyan;">ingredient search</span>, mention foods that you are currently enjoying. Are you eating pickle and peach? Search for it and see what other tasty foods you might want to incorporate!</div>
+            <div class="instruction">To use the <span style="font-weight: bold; color: darkcyan;">ingredient
+                    search</span>, mention foods that you are currently enjoying. Are you eating pickle and peach?
+                Search for it and see what other tasty foods you might want to incorporate!</div>
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
@@ -41,132 +46,139 @@
                 <div class="input-box2" onclick="sendFocus('filter-text-val-2')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
                     <input placeholder="Enter some flavors you'd prefer" id="filter-text-val-2" onkeyup="filterText()">
-                </div>                              
+                </div>
                 <div id="typo-suggestions"> </div>
                 <div id="flavor-suggestions"> </div>
                 <div id="answer-box"></div>
-            </div>  
+            </div>
         </div>
 
-    <script>
+        <script>
 
-        document.querySelectorAll("input[name='flavors']").forEach(cb => {
-            cb.addEventListener("change", handleFlavorChange);
-        });
+            document.querySelectorAll("input[name='flavors']").forEach(cb => {
+                cb.addEventListener("change", handleFlavorChange);
+            });
 
 
-        function flavorAnswerBoxTemplate(foodName) {
-            return `<div class='flavor-search-result'>
+            function flavorAnswerBoxTemplate(foodName) {
+                return `<div class='flavor-search-result'>
                         <h3 class='flavor-food'>${foodName}</h3>
                     </div>`;
-        }
-
-        function handleFlavorChange() {
-            const box = document.getElementById("flavor-answer-box");
-            box.innerHTML = "";
-
-            const checkboxes = document.querySelectorAll("input[name='flavors']:checked");
-            const selectedFlavors = Array.from(checkboxes).map(cb => cb.value);
-
-            if (selectedFlavors.length === 0) {
-                box.innerHTML = "<p>Please select at least one flavor.</p>";
-                return;
             }
 
-            fetch("/flavor-search?" + new URLSearchParams({ flavors: selectedFlavors }))
-                .then(response => response.json())
-                .then(data => {
-                    const results = data.results || data;
+            function handleFlavorChange() {
+                const box = document.getElementById("flavor-answer-box");
+                box.innerHTML = "";
 
-                    if (results.length === 0) {
-                        box.innerHTML = "<p>No matches found.</p>";
-                        return;
-                    }
+                const checkboxes = document.querySelectorAll("input[name='flavors']:checked");
+                const selectedFlavors = Array.from(checkboxes).map(cb => cb.value);
 
-                    results.forEach(food => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = flavorAnswerBoxTemplate(food);
-                        box.appendChild(tempDiv);
+                if (selectedFlavors.length === 0) {
+                    box.innerHTML = "<p>Please select at least one flavor.</p>";
+                    return;
+                }
+
+                fetch("/flavor-search?" + new URLSearchParams({ flavors: selectedFlavors }))
+                    .then(response => response.json())
+                    .then(data => {
+                        const results = data.results || data;
+
+                        if (results.length === 0) {
+                            box.innerHTML = "<p>No matches found.</p>";
+                            return;
+                        }
+
+                        results.forEach(food => {
+                            let tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = flavorAnswerBoxTemplate(food);
+                            box.appendChild(tempDiv);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        box.innerHTML = "<p>Error fetching flavor matches</p>";
                     });
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    box.innerHTML = "<p>Error fetching flavor matches</p>";
-                });
                 filterText();
-        }
+            }
 
-    
-        function answerBoxTemplate(title, similarity, flavor_desc) {
-            return `<div class='search-result'>
+
+            function answerBoxTemplate(title, similarity, flavor_desc) {
+                return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
                         <p class='similarity:'>${similarity}</p>
                         <p class='flavor_description'>${flavor_desc}</p>
+                        <button onclick="findSimilarPairings('${title}')" class="similar-pairings-btn">Find similar pairings by flavor</button>
                     </div>`;
-        }
-    
-        function getFlavorResults() {
-            document.getElementById("flavor-answer-box").innerHTML = "";
-        }
-    
-        function sendFocus(id = 'filter-text-val') {
-            document.getElementById(id).focus();
-        }
+            }
 
-    
-        function filterText() {
-            const query = document.getElementById("filter-text-val").value;
-            const query2 = document.getElementById("filter-text-val-2").value;
+            function findSimilarPairings(title) {
+                const inputBox = document.getElementById("filter-text-val");
+                inputBox.value = title;
+                filterText();
+            }
 
-            document.getElementById("answer-box").innerHTML = "";
-            document.getElementById("typo-suggestions").innerHTML = "";
-            document.getElementById("flavor-suggestions").innerHTML = "";
-    
-            if (!query && !query2) return;
+            function getFlavorResults() {
+                document.getElementById("flavor-answer-box").innerHTML = "";
+            }
 
-            const params = new URLSearchParams({ query: query });
-            if (query) params.append("food", query);
-            if (query2) params.append("flavors", query2);
-    
-            fetch("/search?" + params.toString())
-                .then((response) => response.json())
-                .then((data) => {
-                    const results = data.results || data;
-                    const suggestions = data.suggestions || [];
-                    const flavor_suggestions = data.flavor_suggestions || [];
-    
-                    if (suggestions.length > 0) {
-                        document.getElementById("typo-suggestions").innerHTML =
-                            `Did you mean: ${suggestions.join(", ")}?`;
-                    }
+            function sendFocus(id = 'filter-text-val') {
+                document.getElementById(id).focus();
+            }
 
-                    if (flavor_suggestions.length > 0) {
-                        document.getElementById("flavor-suggestions").innerHTML =
-                            `Did you mean: ${flavor_suggestions.join(", ")}?`;
-                    }
-    
-                    if (results.length === 0) {
+
+            function filterText() {
+                const query = document.getElementById("filter-text-val").value;
+                const query2 = document.getElementById("filter-text-val-2").value;
+
+                document.getElementById("answer-box").innerHTML = "";
+                document.getElementById("typo-suggestions").innerHTML = "";
+                document.getElementById("flavor-suggestions").innerHTML = "";
+
+                if (!query && !query2) return;
+
+                const params = new URLSearchParams({ query: query });
+                if (query) params.append("food", query);
+                if (query2) params.append("flavors", query2);
+
+                fetch("/search?" + params.toString())
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const results = data.results || data;
+                        const suggestions = data.suggestions || [];
+                        const flavor_suggestions = data.flavor_suggestions || [];
+
+                        if (suggestions.length > 0) {
+                            document.getElementById("typo-suggestions").innerHTML =
+                                `Did you mean: ${suggestions.join(", ")}?`;
+                        }
+
+                        if (flavor_suggestions.length > 0) {
+                            document.getElementById("flavor-suggestions").innerHTML =
+                                `Did you mean: ${flavor_suggestions.join(", ")}?`;
+                        }
+
+                        if (results.length === 0) {
+                            document.getElementById("answer-box").innerHTML =
+                                "<p>No matching food pairings found</p>";
+                            return;
+                        }
+
+                        results.forEach(result => {
+                            let tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = answerBoxTemplate(
+                                result.title,
+                                result.similarity,
+                                result.flavor_desc
+                            );
+                            document.getElementById("answer-box").appendChild(tempDiv);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         document.getElementById("answer-box").innerHTML =
-                            "<p>No matching food pairings found</p>";
-                        return;
-                    }
-    
-                    results.forEach(result => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = answerBoxTemplate(
-                            result.title,
-                            result.similarity,
-                            result.flavor_desc
-                        );
-                        document.getElementById("answer-box").appendChild(tempDiv);
+                            "<p>Error searching for food pairings</p>";
                     });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById("answer-box").innerHTML =
-                        "<p>Error searching for food pairings</p>";
-                });
-        }
-    </script>
+            }
+        </script>
     </div>
-</body>        
+</body>
