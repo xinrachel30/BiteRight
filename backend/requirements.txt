@@ -26,3 +26,5 @@ joblib==1.4.2
 scikit-learn==1.6.1
 matplotlib==3.10.1
 colorama==0.4.6
+re==13.1
+python>=3.9

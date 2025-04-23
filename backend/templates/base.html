@@ -38,7 +38,12 @@
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
                     <input placeholder="Enter some foods you're eating" id="filter-text-val" onkeyup="filterText()">
                 </div>
+                <div class="input-box2" onclick="sendFocus('filter-text-val-2')">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Enter some flavors you'd prefer" id="filter-text-val-2" onkeyup="filterText()">
+                </div>                              
                 <div id="typo-suggestions"> </div>
+                <div id="flavor-suggestions"> </div>
                 <div id="answer-box"></div>
             </div>  
         </div>
@@ -104,31 +109,40 @@
             document.getElementById("flavor-answer-box").innerHTML = "";
         }
     
-        function sendFocus() {
-            document.getElementById('filter-text-val').focus();
+        function sendFocus(id = 'filter-text-val') {
+            document.getElementById(id).focus();
         }
+
     
         function filterText() {
             const query = document.getElementById("filter-text-val").value;
+            const query2 = document.getElementById("filter-text-val-2").value;
+
             document.getElementById("answer-box").innerHTML = "";
             document.getElementById("typo-suggestions").innerHTML = "";
+            document.getElementById("flavor-suggestions").innerHTML = "";
     
-            if (!query) return;
+            if (!query && !query2) return;
 
-            const checkboxes = document.querySelectorAll("input[name='flavors']:checked");
-            const selectedFlavors = Array.from(checkboxes).map(cb => cb.value);
             const params = new URLSearchParams({ query: query });
-            selectedFlavors.forEach(flavor => params.append("flavors", flavor));
+            if (query) params.append("food", query);
+            if (query2) params.append("flavors", query2);
     
             fetch("/search?" + params.toString())
                 .then((response) => response.json())
                 .then((data) => {
                     const results = data.results || data;
                     const suggestions = data.suggestions || [];
+                    const flavor_suggestions = data.flavor_suggestions || [];
     
                     if (suggestions.length > 0) {
                         document.getElementById("typo-suggestions").innerHTML =
                             `Did you mean: ${suggestions.join(", ")}?`;
+                    }
+
+                    if (flavor_suggestions.length > 0) {
+                        document.getElementById("flavor-suggestions").innerHTML =
+                            `Did you mean: ${flavor_suggestions.join(", ")}?`;
                     }
     
                     if (results.length === 0) {

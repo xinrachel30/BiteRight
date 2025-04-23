@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
@@ -64,12 +65,17 @@ def flavor_search():
 
 @app.route('/search')
 def search():
-    query = request.args.get('query', '').lower()    
-    selected_flavors = request.args.getlist("flavors")
-
-    flavors_wanted = set([f.lower() for f in selected_flavors])
-    if not query:
+    query = request.args.get('food', '').lower()    
+    selected_flavors = request.args.get('flavors', '').lower()
+    
+    if not query and not selected_flavors:
         return jsonify([])
+
+    selected_flavors = re.split(r'[,\s]+', selected_flavors.strip())
+    print("\n\n\n\n", selected_flavors)
+    flavors_wanted = set(selected_flavors)
+    unspecified_flavors = [flavor for flavor in selected_flavors if flavor not in flavors]
+    print("i need to find some suggestions for ", unspecified_flavors)
 
     tokenized_query = tokenize_query(query.replace(',', '')) 
     # ex) "grape, pork and cheese" -> ['grape', 'pork', 'and', 'cheese]
@@ -111,7 +117,13 @@ def search():
         else:
             print("needed to find a suggestion for", term)
             typo_suggestions.extend(find_closest(term, vocab)) #if misspelt, find typos suggestions
+    
+    flavor_typo_suggestions = []
+    for flavor in unspecified_flavors: 
+        flavor_typo_suggestions.extend(find_closest(flavor, flavors))
 
+    print(flavors)
+    print("the flavor typos suggestions i found wereee", flavor_typo_suggestions)
     query_vocab_terms = [term for term in tokenized_query if term in vocab]
     # flavors_have = closest_food_profile(query_vocab_terms)
 
@@ -121,7 +133,8 @@ def search():
     if not query_vocab_terms: #no vocab words 
         return jsonify({
             "results": [],
-            "suggestions": typo_suggestions
+            "suggestions": typo_suggestions, 
+            "flavor_suggestions": flavor_typo_suggestions
         })
 
     # Create document-term matrix
@@ -225,7 +238,8 @@ def search():
 
     return jsonify({
         "results": top_10, 
-        "suggestions": typo_suggestions 
+        "suggestions": typo_suggestions,
+        "flavor_suggestions": flavor_typo_suggestions
     })  # Return top 10 results
 
 

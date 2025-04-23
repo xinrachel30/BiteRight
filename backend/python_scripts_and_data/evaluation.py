@@ -23,7 +23,7 @@ def edit_distance(word1, word2):
   
   return dp[x][y]
 
-def find_closest(term, vocab):
+def find_closest(term, term_list):
   typo_suggestions = []
 
   term = term.lower()
@@ -32,7 +32,7 @@ def find_closest(term, vocab):
   closest_word = ""
   second_closest = ""
 
-  for vocab_word in vocab:
+  for vocab_word in term_list:
       curr_distance = edit_distance(vocab_word, term)
 
       if curr_distance < min_distance:
