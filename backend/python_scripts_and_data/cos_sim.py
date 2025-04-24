@@ -3,13 +3,18 @@ import pickle
 import numpy as np
 import math
 
-vocab = []
-
-BASE_DIR = os.getcwd()  # Get current working directory
+# Update paths to use the correct directory structure
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "python_scripts_and_data", "data")
 
+# Load vocab
 with open(os.path.join(DATA_DIR, "foodVocab.pkl"), "rb") as file: 
     vocab = pickle.load(file)
+
+# Load complexRep
+with open(os.path.join(DATA_DIR, "complexRep.pkl"), "rb") as file:
+    complexRep = pickle.load(file)
+    complex_items = list(complexRep.items())
 
 vocab = list(set(vocab))
 vocab_dict = {}
@@ -18,54 +23,57 @@ for food in vocab:
     vocab_dict[food] = i
     i += 1
 
-with open(os.path.join(DATA_DIR, "foodwords_score_dict.pkl"), "rb") as file:
-    foodPair_upvotes = pickle.load(file)
-
-def cosine_make_doc_term(foodPair_upvotes):
+def cos_create_doc_term(foodPair_upvotes):
     doc_term = np.zeros((len(foodPair_upvotes),len(vocab)))
     # term doc matrix with tf = upvotes
     docIdx = 0
     for foodPair, uv in foodPair_upvotes.items():
-        food_arr = [f.lower().strip() for f in foodPair.split(",") if f.strip()]
+        food_arr = foodPair.split(", ")
+        food_arr = food_arr[0:len(food_arr)-1]
         for food in food_arr:
             doc_term[docIdx][vocab_dict[food]] = uv
         docIdx+=1
     return doc_term
 
-def cosine_create_inv_idx(food_arr_uv):
-#inv_idx[term] = [(d1, tf1), (d2, tf2), ...]    
+def create_inv_idx(complex_items):
+    # should use
+    # complex items: [(comment#,({food: count},upvotes)),(int,(dict,int))]
+    #inv_idx[term] = [(d1, tf1), (d2, tf2), ...]    
     inv_idx = {}
-    for i in range(len(food_arr_uv)):
-        food_list, uv = food_arr_uv[i]
-        for word in food_list:
-            if word in inv_idx:
-                inv_idx[word].append((i,uv))
-            else:
-                tf = math.log2(1 + max(0, uv))
-                inv_idx[word] = [(i, tf)]
+    for i in range(len(complex_items)):
+        uv = complex_items[i][1][1]
+        for word in vocab:
+            if word in complex_items[i][1][0].keys():
+                if word in inv_idx.keys():
+                    inv_idx[word].append((complex_items[i][0],complex_items[i][1][0][word]*uv))
+                else:
+                    inv_idx[word] = [(complex_items[i][0],complex_items[i][1][0][word]*uv)]
     return inv_idx
 
+
 #compute idf values = 1/num docs containing term
-def cosine_idf1(inv_idx):
+def idf1(inv_idx):
     idf = {}
     for food, docs in inv_idx.items():
         idf[food] = 1/len(docs)
     return idf
 
-def cosine_idf2(inv_idx,n_comms):
+def idf2(inv_idx,n_comms):
+    #inv_idx[term] = [(d1, tf1), (d2, tf2), ...]  
     idf2 = {}
     for food, docs in inv_idx.items():
         idf2[food] = math.log2(n_comms/(1+len(docs)))
     return idf2
 
-def cosine_doc_norms(inv_idx, n_comms, idfs):
+# compute doc norms
+def doc_norms(inv_idx,n_comms,idf):
     norms = np.zeros(n_comms)
-    for termi, idfi in idfs.items():
-        for j, tfij in inv_idx.get(termi, []):
-            norms[j] += (tfij * idfi) ** 2
+    for termi, idfi in idf.items():
+            for j, tfij in inv_idx[termi]:
+                norms[j] += (tfij * idfi)**2
     return np.sqrt(norms)
 
-def cosine_dot_scores(query_word_counts,invidx,idfs):
+def dot_scores(query_word_counts,invidx,idfs):
     """
     returns a dict {docid : dot product sum}
     """
@@ -79,57 +87,48 @@ def cosine_dot_scores(query_word_counts,invidx,idfs):
     return acc
 
 
-def cosine_sim(query,inv_idx,idfs,norms):
-    res = []
-    query = query.lower()
-    query_terms = query.split(" ")
+def cosine_sim(query,inv_idx,idfs,norms,n_comms):
+    """query vector is len(vocab) with tf"""
+    
+    # updated to return list of scores for each doc
+    
+    res = np.zeros(n_comms,dtype=float)
     qtf = {}
-    for term in query_terms:
-        if term in idfs.keys():
-            if term not in qtf.keys():
-                qtf[term] = 1
-            else:
-                qtf[term] += 1
-    
-    #compute query norm
-    qnorm = 0
-    for term, tfq in qtf.items():
-        qnorm += (idfs[term]* tfq)**2
+    for i in range(len(query)):
+        if query[i] > 0:
+            qtf[vocab[i]] = query[i]
 
-    print("qnorm:", qnorm)
+    qnorm = np.linalg.norm(query)
 
-    num = cosine_dot_scores(qtf,inv_idx,idfs)
-    for i in range(np.size(norms)):
+    num = dot_scores(qtf,inv_idx,idfs)
+
+    for i in range(n_comms):
         dnorm = norms[i]
-        if i in num.keys() and dnorm > 0:
-            res.append((num[i]/(qnorm * dnorm),i))
-    return sorted(res,reverse = True)
+        if i in num.keys():
+            print(qnorm,"d:",dnorm)
+            res[i] = num[i]/(qnorm*dnorm)
+    return res
 
-def main_cos(query, filtered_matrix, indices):
-    food_arr_uv = []
-    for foodPair, uv in foodPair_upvotes.items():
-        food_arr = [f.lower().strip() for f in foodPair.split(",") if f.strip()]
-        food_arr_uv.append((food_arr, uv))
 
-    n_comms = len(foodPair_upvotes)
-    inv_idx = cosine_create_inv_idx(food_arr_uv)
-    idfs = cosine_idf2(inv_idx, n_comms)
+def main_cos(query,filtered_matrix, indices):
+
+    n_comms = len(complex_items)
+    inv_idx = create_inv_idx(complex_items)
+    idfs = idf2(inv_idx,n_comms)
+    norms = doc_norms(inv_idx,n_comms,idfs)
+    sim_scores = cosine_sim(query,inv_idx,idfs,norms,n_comms)
+    penalties = np.zeros(n_comms)
+    for i in range(n_comms):
+        if len(complex_items[i][1][0])>0:
+            penalties[i] = (1e9) / math.sqrt(len(complex_items[i][1][0])) # really small penalty for length
     
-    assert "cheese" in idfs
+    sim_scores *= penalties
+    max = np.nanmax(sim_scores)
+    if max > 0:
+        sim_scores /= max
+    return sim_scores
 
-    norms = cosine_doc_norms(inv_idx, n_comms, idfs)
-
-    query_terms = [term.strip().lower() for term in query.split(",") if term.strip()]
-    query_text = " ".join(query_terms)
-    #res = [(sim, doc id)] in decreasing order
-    res = cosine_sim(query,inv_idx,idfs,norms)
-    i=0
-    if len(res) <1:
-        print("Try searching for another food item")
-    while i < 3 and i < len(res) :
-        print(i+1, food_arr_uv[res[i][1]][0])
-        i+=1
-
+"""
     # << changes >> 
     cosine_score_vec = np.zeros(len(filtered_matrix))
     for score, doc_id in res: # boolean results apply to cosine as well
@@ -145,3 +144,4 @@ def main_cos(query, filtered_matrix, indices):
         cosine_score_vec /= max_value
 
     return cosine_score_vec
+"""
