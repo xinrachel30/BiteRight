@@ -120,6 +120,8 @@ def search():
     
     flavor_typo_suggestions = []
     for flavor in unspecified_flavors: 
+        if flavor == "": 
+            continue
         flavor_typo_suggestions.extend(find_closest(flavor, flavors))
 
     print(flavors)
