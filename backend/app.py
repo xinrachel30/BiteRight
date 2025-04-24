@@ -124,7 +124,7 @@ def search():
             continue
         flavor_typo_suggestions.extend(find_closest(flavor, flavors))
 
-    print(flavors)
+    # print(flavors)
     print("the flavor typos suggestions i found wereee", flavor_typo_suggestions)
     query_vocab_terms = [term for term in tokenized_query if term in vocab]
     # flavors_have = closest_food_profile(query_vocab_terms)
@@ -141,7 +141,7 @@ def search():
 
     # Create document-term matrix
     doc_term_matrix = create_doc_term(complex_items, vocab, mode="tf")
-    print("doc term matrix shape: ", doc_term_matrix.shape)
+    # print("doc term matrix shape: ", doc_term_matrix.shape)
     doc_term_binary = np.where(doc_term_matrix > 0, 1, 0)
     print("number of documents: ", len(complex_items))
 
@@ -160,6 +160,7 @@ def search():
     jaccard_scores = gen_jaccard_sim(query_vector, filtered_matrix)
     
     cosine_scores = main_cos(query_vector, filtered_matrix, indices)
+    cosine_scores = cosine_scores[indices]
 
     jaccard_weight = 0.6 # change this value to test best combination
     combined = jaccard_weight * jaccard_scores + (1 - jaccard_weight) * cosine_scores
@@ -247,8 +248,4 @@ def search():
 
 if 'DB_NAME' not in os.environ:
     app.run(debug=True,host="0.0.0.0",port=5000)
-
-
-
-
     

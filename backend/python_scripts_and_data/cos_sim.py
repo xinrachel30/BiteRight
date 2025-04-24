@@ -117,10 +117,12 @@ def main_cos(query,filtered_matrix, indices):
     idfs = idf2(inv_idx,n_comms)
     norms = doc_norms(inv_idx,n_comms,idfs)
     sim_scores = cosine_sim(query,inv_idx,idfs,norms,n_comms)
-    penalties = np.zeros(n_comms)
-    for i in range(n_comms):
-        if len(complex_items[i][1][0])>0:
-            penalties[i] = (1e9) / math.sqrt(len(complex_items[i][1][0])) # really small penalty for length
+    
+    penalties = np.ones_like(sim_scores)
+    for i in range(len(filtered_matrix)):
+        length = np.count_nonzero(filtered_matrix[i])
+        if length > 0:
+            penalties[i] = 1e9 / math.sqrt(length)
     
     sim_scores *= penalties
     max = np.nanmax(sim_scores)
@@ -128,20 +130,19 @@ def main_cos(query,filtered_matrix, indices):
         sim_scores /= max
     return sim_scores
 
-"""
+
     # << changes >> 
-    cosine_score_vec = np.zeros(len(filtered_matrix))
-    for score, doc_id in res: # boolean results apply to cosine as well
-        if doc_id in indices:
-            idx_in_filtered = np.where(indices == doc_id)[0][0]
-            food_len = len(food_arr_uv[doc_id][0])
-            penalty = 1 / math.sqrt(food_len)  # really small penalty for length
-            cosine_score_vec[idx_in_filtered] = score * penalty
+    # cosine_score_vec = np.zeros(len(filtered_matrix))
+    # for score, doc_id in res: # boolean results apply to cosine as well
+    #     if doc_id in indices:
+    #         idx_in_filtered = np.where(indices == doc_id)[0][0]
+    #         food_len = len(food_arr_uv[doc_id][0])
+    #         penalty = 1 / math.sqrt(food_len)  # really small penalty for length
+    #         cosine_score_vec[idx_in_filtered] = score * penalty
 
 
-    max_value = cosine_score_vec.max()
-    if max_value > 0:
-        cosine_score_vec /= max_value
+    # max_value = cosine_score_vec.max()
+    # if max_value > 0:
+    #     cosine_score_vec /= max_value
 
-    return cosine_score_vec
-"""
+    # return cosine_score_vec
