@@ -157,7 +157,7 @@ def search():
     # Get Jaccard scores
     jaccard_scores = gen_jaccard_sim(query_vector, filtered_matrix)
     
-    cosine_scores = main_cos(query, filtered_matrix, indices)
+    cosine_scores = main_cos(query_vector, filtered_matrix, indices)
 
     jaccard_weight = 0.6 # change this value to test best combination
     combined = jaccard_weight * jaccard_scores + (1 - jaccard_weight) * cosine_scores
