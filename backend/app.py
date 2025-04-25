@@ -20,8 +20,9 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # These are the DB credentials for your OWN MySQL
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
-LOCAL_MYSQL_USER = "wsl_root"
-LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
+#LOCAL_MYSQL_USER = "wsl_root"
+LOCAL_MYSQL_USER = "root"
+LOCAL_MYSQL_USER_PASSWORD = "SQR_Rosario02" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
 
@@ -62,6 +63,66 @@ def flavor_search():
     sims_scores = list(ranking_dict.values())
     
     return jsonify({"results": ranking})
+
+@app.route("/vibe-search")
+def vibe_search():
+    query_foods = request.args.get('food_vibe', '').lower() 
+    if not query_foods:
+        return jsonify([])
+    
+    tokenized_query = tokenize_query(query_foods.replace(',', '')) 
+    comma_separated = [section.strip() for section in query_foods.split(',') if section.strip()]
+
+    cleaned_query_boolean = []
+    for part in comma_separated: 
+        tokens = tokenize_query(part)
+        parsed = parse_parens(tokens)
+        #print("each part: ", part, "->", parsed)
+        cleaned_query_boolean.append(parsed)
+
+    final_boolean = []
+    for i, parsed in enumerate(cleaned_query_boolean):
+        if i > 0:
+            final_boolean.append("or") # adds 'or' between every two "parts"
+        final_boolean.append(parsed) 
+
+    query_vector = np.zeros(len(vocab))
+    typo_suggestions = []
+    contains_booleans = False
+
+    # For creating query vector, modified to also find suggested words
+    final_query = []
+    for term in tokenized_query:
+        if term in vocab:
+            idx = vocab.index(term)
+            query_vector[idx] += 1
+            final_query.append(term)
+            #print(term, "is a vocab word")
+        elif (not contains_booleans) and term in ["or", "and", "not", "(", ")"]: #considering parentheses as booleans
+            contains_booleans = True
+            #print("contains booleans")
+        else:
+            #print("needed to find a suggestion for", term)
+            typo_suggestions.extend(find_closest(term, vocab)) #if misspelt, find typos suggestions
+    
+
+    results = closest_food_profile(final_query)
+    #dict of {food: score}
+    top_10 = results.keys()[:10]
+
+    for food in top_10:
+        if results[food] >0:
+            results.append({
+                'food': food,
+                'similarity': results[food]
+            })
+
+
+    return jsonify({
+        "results": top_10, 
+        "suggestions": typo_suggestions,
+    })  # Return top 10 results
+
 
 @app.route('/search')
 def search():

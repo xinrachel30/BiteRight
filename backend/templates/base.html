@@ -18,25 +18,8 @@
         </div>
 
         <div class="split left">
-            <div class="instruction">To specify which <span
-                    style="font-weight: bold; color: darkmagenta;">flavors</span> you want to have, specify from as many
-                of the options below!</div>
-            <div class="checklist">
-                <form action="/flavor-search" id="flavor_form">
-                    <label><input type="checkbox" name="flavors" value="Fried"> Fried</label><br>
-                    <label><input type="checkbox" name="flavors" value="Spicy"> Spicy</label><br>
-                    <label><input type="checkbox" name="flavors" value="Cold"> Cold</label><br>
-                    <label><input type="checkbox" name="flavors" value="Sweet"> Sweet</label><br>
-                </form>
-                <div id="flavor-answer-box"></div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="split right">
             <div class="instruction">To use the <span style="font-weight: bold; color: darkcyan;">ingredient
-                    search</span>, mention foods that you are currently enjoying. Are you eating pickle and peach?
+                    search,</span> mention foods that you are currently enjoying. Are you eating pickle and peach?
                 Search for it and see what other tasty foods you might want to incorporate!</div>
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
@@ -53,6 +36,21 @@
             </div>
         </div>
 
+        <div class="divider"></div>
+
+        <div class="split right">
+            <div class="instruction">To use <span
+                    style="font-weight: bold; color: darkmagenta;">vibe search,</span> input foods you enjoy together 
+                    to get a combination with a similar flavor profile</div>
+            <div class="centered">
+                <div class="vibe-input-box" onclick="sendFocus('filter-vibe-val')">
+                    <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                    <input placeholder="Enter a combination you enjoy" id="filter-vibe-val" onkeyup="filterText()">
+                </div>
+                <div id="flavor-answer-box"></div>
+            </div>
+        </div>
+
         <script>
 
             document.querySelectorAll("input[name='flavors']").forEach(cb => {
@@ -63,6 +61,12 @@
             function flavorAnswerBoxTemplate(foodName) {
                 return `<div class='flavor-search-result'>
                         <h3 class='flavor-food'>${foodName}</h3>
+                    </div>`;
+            }
+            function vibeAnswerBoxTemplate(title, similarity) {
+                return `<div class='flavor-search-result'>
+                        <h3 class='food-pairing'>${food}</h3>
+                        <p class='similarity:'>${similarity}</p>
                     </div>`;
             }
 
@@ -78,7 +82,7 @@
                     return;
                 }
 
-                fetch("/flavor-search?" + new URLSearchParams({ flavors: selectedFlavors }))
+                fetch("/vibe-search?" + new URLSearchParams({ flavors: selectedFlavors }))
                     .then(response => response.json())
                     .then(data => {
                         const results = data.results || data;
@@ -90,7 +94,7 @@
 
                         results.forEach(food => {
                             let tempDiv = document.createElement("div");
-                            tempDiv.innerHTML = flavorAnswerBoxTemplate(food);
+                            tempDiv.innerHTML = vibeAnswerBoxTemplate(food);
                             box.appendChild(tempDiv);
                         });
                     })
