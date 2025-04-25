@@ -22,7 +22,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # You can use a different DB name if you want to
 #LOCAL_MYSQL_USER = "wsl_root"
 LOCAL_MYSQL_USER = "root"
-LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
+LOCAL_MYSQL_USER_PASSWORD = "qwertyui" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
 
@@ -109,8 +109,9 @@ def vibe_search():
     results = closest_food_profile(final_query)
 
     flavor_desc_list = []
-    for food, scores in results.items(): 
-        result_flavor_dict = closest_flavors_given_foods(results)
+    for food in results.keys(): 
+        # Convert the single food into a list since closest_flavors_given_foods expects a list
+        result_flavor_dict = closest_flavors_given_foods([food])
         result_flavor_set = set(f.lower() for f in result_flavor_dict.keys())
         top_flavors = list(result_flavor_dict.keys())[:3]
         flavor_desc = ", ".join(top_flavors[:-1]) + ", and " + top_flavors[-1] if len(top_flavors) >= 3 else ", ".join(top_flavors)
