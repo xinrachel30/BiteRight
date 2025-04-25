@@ -21,8 +21,8 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 #LOCAL_MYSQL_USER = "wsl_root"
-LOCAL_MYSQL_USER = "root"
-LOCAL_MYSQL_USER_PASSWORD = "qwertyui" # TODO: make this an env variable
+LOCAL_MYSQL_USER = "wsl_root"
+LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
 
@@ -148,6 +148,8 @@ def search():
     # ex) "(pork and, cheese)" -> ['(', 'pork', 'and', 'cheese', ')']
     print("tokenized:", tokenized_query)
 
+    only_words = [token for token in tokenized_query if token not in {"and", "or", "not", "(", ")"}]
+
     comma_separated = [section.strip() for section in query.split(',') if section.strip()]
     # ex) "cheese, pork and grape" -> ['cheese', 'pork and grape']
 
@@ -172,7 +174,7 @@ def search():
     contains_booleans = False
 
     # For creating query vector, modified to also find suggested words
-    for term in tokenized_query:
+    for term in only_words:
         if term in vocab:
             idx = vocab.index(term)
             query_vector[idx] += 1
