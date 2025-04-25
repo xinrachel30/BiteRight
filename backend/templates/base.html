@@ -18,9 +18,9 @@
         </div>
 
         <div class="split left">
-            <div class="instruction">To use the <span style="font-weight: bold; color: darkcyan;">ingredient
-                    search,</span> mention foods that you are currently enjoying. Are you eating pickle and peach?
-                Search for it and see what other tasty foods you might want to incorporate!</div>
+            <div class="instruction"><span style="font-weight: bold; color: darkcyan;">Ingredient
+                    search: </span> Choose your foods and flavors, and we'll give you a cool new combo to try out! 
+                    Results are sorted by how popular the combo was on Reddit.</div>
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
@@ -28,7 +28,7 @@
                 </div>
                 <div class="input-box2" onclick="sendFocus('filter-text-val-2')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Enter some flavors you'd prefer" id="filter-text-val-2" onkeyup="filterText()">
+                    <input placeholder="Enter some flavors you'd prefer (optional)" id="filter-text-val-2" onkeyup="filterText()">
                 </div>
                 <div id="typo-suggestions"> </div>
                 <div id="flavor-suggestions"> </div>
@@ -39,9 +39,8 @@
         <!-- <div class="divider"></div> -->
 
         <div class="split right">
-            <div class="instruction">To use <span style="font-weight: bold; color: darkmagenta;">vibe search,</span>
-                input foods you enjoy together
-                to get a combination with a similar flavor profile</div>
+            <div class="instruction"><span style="font-weight: bold; color: darkmagenta;">Vibe search: </span>
+                Choose a food, or try a combo from the Ingredient Search, and we'll give you something with a similar flavor profile! </div>
             <div class="centered">
                 <div class="vibe-input-box" onclick="sendFocus('filter-vibe-val')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
