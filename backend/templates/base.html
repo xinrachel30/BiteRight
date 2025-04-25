@@ -62,10 +62,11 @@
                         <h3 class='flavor-food'>${foodName}</h3>
                     </div>`;
             }
-            function vibeAnswerBoxTemplate(title, similarity) {
+            function vibeAnswerBoxTemplate(title, similarity,flavor_desc) {
                 return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
                         <p class='similarity'>Similar flavor profile: ${(similarity * 100).toFixed(2)}%</p>
+                        <p class='flavor_description'>${flavor_desc}</p>
                     </div>`;
             }
 
@@ -207,7 +208,8 @@
                             let tempDiv = document.createElement("div");
                             tempDiv.innerHTML = vibeAnswerBoxTemplate(
                                 result.food,
-                                result.similarity
+                                result.similarity,
+                                result.flavor_desc
                             );
                             document.getElementById("vibe-answer-box").appendChild(tempDiv);
                         });
