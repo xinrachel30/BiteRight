@@ -19,8 +19,8 @@
 
         <div class="split left">
             <div class="instruction"><span style="font-weight: bold; color: darkcyan;">Ingredient
-                    search: </span> Choose your foods and flavors, and we'll give you a cool new combo to try out! 
-                    Results are sorted by how popular the combo was on Reddit.</div>
+                    search: </span> Choose your foods and flavors, and we'll give you a cool new combo to try out!
+                Results are sorted by how popular the combo was on Reddit.</div>
             <div class="centered">
                 <div class="input-box" onclick="sendFocus()">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
@@ -28,7 +28,8 @@
                 </div>
                 <div class="input-box2" onclick="sendFocus('filter-text-val-2')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Enter some flavors you'd prefer (optional)" id="filter-text-val-2" onkeyup="filterText()">
+                    <input placeholder="Enter some flavors you'd prefer (optional)" id="filter-text-val-2"
+                        onkeyup="filterText()">
                 </div>
                 <div id="typo-suggestions"> </div>
                 <div id="flavor-suggestions"> </div>
@@ -40,12 +41,14 @@
 
         <div class="split right">
             <div class="instruction"><span style="font-weight: bold; color: darkmagenta;">Vibe search: </span>
-                Choose a food, or try a combo from the Ingredient Search, and we'll give you something with a similar flavor profile! </div>
+                Choose a food, or try a combo from the Ingredient Search, and we'll give you something with a similar
+                flavor profile! </div>
             <div class="centered">
                 <div class="vibe-input-box" onclick="sendFocus('filter-vibe-val')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
                     <input placeholder="Enter a combination you enjoy" id="filter-vibe-val" onkeyup="filterVibeText()">
                 </div>
+                <div id="vibe-typo-suggestions"></div>
                 <div id="vibe-answer-box"></div>
             </div>
         </div>
@@ -62,7 +65,7 @@
                         <h3 class='flavor-food'>${foodName}</h3>
                     </div>`;
             }
-            function vibeAnswerBoxTemplate(title, similarity,flavor_desc) {
+            function vibeAnswerBoxTemplate(title, similarity, flavor_desc) {
                 return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
                         <p class='similarity'>Similar flavor profile: ${(similarity * 100).toFixed(2)}%</p>
@@ -188,6 +191,7 @@
             function filterVibeText() {
                 const query = document.getElementById("filter-vibe-val").value;
                 document.getElementById("vibe-answer-box").innerHTML = "";
+                document.getElementById("vibe-typo-suggestions").innerHTML = "";
 
                 if (!query) return;
 
@@ -197,6 +201,12 @@
                     .then((response) => response.json())
                     .then((data) => {
                         const results = data.results || [];
+                        const suggestions = data.suggestions || [];
+
+                        if (suggestions.length > 0) {
+                            document.getElementById("vibe-typo-suggestions").innerHTML =
+                                `Did you mean: ${suggestions.join(", ")}?`;
+                        }
 
                         if (results.length === 0) {
                             document.getElementById("vibe-answer-box").innerHTML =

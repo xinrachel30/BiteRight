@@ -164,17 +164,9 @@ body {
     z-index: 997;
 } */
 
-#typo-suggestions {
-    position: relative;
-    font-style: italic;
-    font-family: 'Open Sans', sans-serif;
-    text-align: left;
-    color: black;
-    width: 40vw;
-    z-index: 999;
-}
-
-#flavor-suggestions {
+#typo-suggestions,
+#flavor-suggestions,
+#vibe-typo-suggestions {
     position: relative;
     font-style: italic;
     font-family: 'Open Sans', sans-serif;
