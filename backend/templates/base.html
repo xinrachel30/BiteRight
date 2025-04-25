@@ -36,18 +36,18 @@
             </div>
         </div>
 
-        <div class="divider"></div>
+        <!-- <div class="divider"></div> -->
 
         <div class="split right">
-            <div class="instruction">To use <span
-                    style="font-weight: bold; color: darkmagenta;">vibe search,</span> input foods you enjoy together 
-                    to get a combination with a similar flavor profile</div>
+            <div class="instruction">To use <span style="font-weight: bold; color: darkmagenta;">vibe search,</span>
+                input foods you enjoy together
+                to get a combination with a similar flavor profile</div>
             <div class="centered">
                 <div class="vibe-input-box" onclick="sendFocus('filter-vibe-val')">
                     <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                    <input placeholder="Enter a combination you enjoy" id="filter-vibe-val" onkeyup="filterText()">
+                    <input placeholder="Enter a combination you enjoy" id="filter-vibe-val" onkeyup="filterVibeText()">
                 </div>
-                <div id="flavor-answer-box"></div>
+                <div id="vibe-answer-box"></div>
             </div>
         </div>
 
@@ -64,9 +64,9 @@
                     </div>`;
             }
             function vibeAnswerBoxTemplate(title, similarity) {
-                return `<div class='flavor-search-result'>
-                        <h3 class='food-pairing'>${food}</h3>
-                        <p class='similarity:'>${similarity}</p>
+                return `<div class='search-result'>
+                        <h3 class='food-pairing'>${title}</h3>
+                        <p class='similarity'>${similarity}</p>
                     </div>`;
             }
 
@@ -116,9 +116,10 @@
             }
 
             function findSimilarPairings(title) {
-                const inputBox = document.getElementById("filter-text-val");
+                const inputBox = document.getElementById("filter-vibe-val");
                 inputBox.value = title;
-                filterText();
+                inputBox.focus();
+                filterVibeText();
             }
 
             function getFlavorResults() {
@@ -180,6 +181,41 @@
                     .catch(error => {
                         console.error('Error:', error);
                         document.getElementById("answer-box").innerHTML =
+                            "<p>Error searching for food pairings</p>";
+                    });
+            }
+
+            function filterVibeText() {
+                const query = document.getElementById("filter-vibe-val").value;
+                document.getElementById("vibe-answer-box").innerHTML = "";
+
+                if (!query) return;
+
+                const params = new URLSearchParams({ food_vibe: query });
+
+                fetch("/vibe-search?" + params.toString())
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const results = data.results || [];
+
+                        if (results.length === 0) {
+                            document.getElementById("vibe-answer-box").innerHTML =
+                                "<p>No matching food pairings found</p>";
+                            return;
+                        }
+
+                        results.forEach(food => {
+                            let tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = vibeAnswerBoxTemplate(
+                                food,
+                                "Similar flavor profile"
+                            );
+                            document.getElementById("vibe-answer-box").appendChild(tempDiv);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById("vibe-answer-box").innerHTML =
                             "<p>Error searching for food pairings</p>";
                     });
             }

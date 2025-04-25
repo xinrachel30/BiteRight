@@ -46,27 +46,29 @@ body {
 
 .left {
     left: 0;
-    width: 66.66%;
+    width: 50%;
 }
 
 .right {
     right: 0;
-    width: 33.33%
+    width: 50%
 }
 
 .centered {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    position: relative;
+    top: 15vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
 .google-colors {
     display: flex;
     align-items: center;
     font-size: 48px;
-    padding-bottom: -2vh;
+    padding: 20px 0;
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -100,33 +102,30 @@ body {
 
 .instruction {
     padding: 22vh 25px 0px;
-    margin-top: -3vh;
+    /* margin-top: -3vh; */
     font-size: 24px;
     font-family: 'Open Sans', sans-serif;
     text-align: center;
 }
 
 .input-box,
-.input-box2 {
+.input-box2,
+.vibe-input-box {
     display: flex;
     align-items: center;
-    width: 60vw;
+    width: 40vw;
     padding: 12px;
-    top: -12vh;
     border-radius: 50px;
     border: 1px solid black;
     background: white;
     z-index: 1000;
     overflow: hidden;
-    margin: 10px;
-    /* centers it horizontally */
-    margin-bottom: 3vh;
+    margin: 0;
     position: relative;
-    /* allow vertical stacking */
 }
 
 .input-box input,
-.input-box2 input, 
+.input-box2 input,
 .vibe-input-box input {
     width: 100%;
     margin-left: 10px;
@@ -142,7 +141,7 @@ body {
     width: 20px;
 }
 
-.vibe-input-box {
+/* .vibe-input-box {
     display: flex;
     align-items: center;
     width: 30vw;
@@ -154,43 +153,45 @@ body {
     z-index: 1000;
     overflow: hidden;
     margin: 10px;
-}
+} */
 
-#typo-suggestions {
-    position: absolute;
-    top: 8vh;
-    left: 45vh;
-    transform: translateX(-50%);
-    font-style: italic;
-    font-family: 'Open Sans', sans-serif;
-    text-align: left;
-    color: black;
-    height: 4vh;
-    width: 620px;
-    z-index: 999;
-}
-
-#flavor-suggestions {
-    position: absolute;
-    top: 12vh;
-    left: 45vh;
-    transform: translateX(-50%);
-    font-style: italic;
-    font-family: 'Open Sans', sans-serif;
-    text-align: left;
-    color: black;
-    height: 10vh;
-    width: 620px;
-    z-index: 999;
-}
-
-#answer-box {
+/* #vibe-answer-box {
     position: absolute;
     top: 5vh;
     left: 50%;
     transform: translateX(-50%);
     width: 50vw;
     z-index: 997;
+} */
+
+#typo-suggestions {
+    position: relative;
+    font-style: italic;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    color: black;
+    width: 40vw;
+    z-index: 999;
+}
+
+#flavor-suggestions {
+    position: relative;
+    font-style: italic;
+    font-family: 'Open Sans', sans-serif;
+    text-align: left;
+    color: black;
+    width: 40vw;
+    z-index: 999;
+}
+
+#answer-box,
+#vibe-answer-box {
+    position: relative;
+    width: 40vw;
+    z-index: 997;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 #flavor-answer-box {
@@ -223,7 +224,7 @@ body {
     height: 70vh;
     margin-top: 5vh;
     background-color: black;
-    left: 66.66%;
+    left: 60%;
     z-index: 2;
 }
 
@@ -264,4 +265,8 @@ button[name="flavor-search"] {
     border-radius: 6px;
     cursor: pointer;
     text-align: center;
+}
+
+.split.right .centered {
+    top: 15vh;
 }
