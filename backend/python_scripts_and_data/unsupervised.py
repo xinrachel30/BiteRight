@@ -41,7 +41,7 @@ u, s, v_trans = svds(food_flavor_matrix, k=100)
 plt.plot(s[::-1])
 plt.xlabel("Singular value number")
 plt.ylabel("Singular value")
-plt.show()  #Commented out once an appropriate k is chosen
+# plt.show()  #Commented out once an appropriate k is chosen
 
 '''
 Appropriate Value of k is set here (Affects number of latent flavor dims)

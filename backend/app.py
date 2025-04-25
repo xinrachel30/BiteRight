@@ -107,16 +107,21 @@ def vibe_search():
     
 
     results = closest_food_profile(final_query)
-    #dict of {food: score}
-    top_10 = list(results.keys())[:10]
-
     results_list = []
-    for food in top_10:
-        if results[food] > 0:
+    
+    # Convert dictionary items to list of dicts with food and similarity
+    for food, similarity in results.items():
+        if similarity > 0:
             results_list.append({
                 'food': food,
-                'similarity': results[food]
+                'similarity': similarity
             })
+    
+    # Sort by similarity score in descending order
+    results_list.sort(key=lambda x: x['similarity'], reverse=True)
+    
+    # Take top 10 results
+    top_10 = results_list[:10]
 
     return jsonify({
         "results": top_10, 

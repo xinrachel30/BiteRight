@@ -66,7 +66,7 @@
             function vibeAnswerBoxTemplate(title, similarity) {
                 return `<div class='search-result'>
                         <h3 class='food-pairing'>${title}</h3>
-                        <p class='similarity'>${similarity}</p>
+                        <p class='similarity'>Similar flavor profile: ${(similarity * 100).toFixed(2)}%</p>
                     </div>`;
             }
 
@@ -204,11 +204,11 @@
                             return;
                         }
 
-                        results.forEach(food => {
+                        results.forEach(result => {
                             let tempDiv = document.createElement("div");
                             tempDiv.innerHTML = vibeAnswerBoxTemplate(
-                                food,
-                                "Similar flavor profile"
+                                result.food,
+                                result.similarity
                             );
                             document.getElementById("vibe-answer-box").appendChild(tempDiv);
                         });
