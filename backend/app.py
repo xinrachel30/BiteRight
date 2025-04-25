@@ -21,7 +21,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 #LOCAL_MYSQL_USER = "wsl_root"
-LOCAL_MYSQL_USER = "wsl_root"
+LOCAL_MYSQL_USER = "root"
 LOCAL_MYSQL_USER_PASSWORD = "admin" # TODO: make this an env variable
 LOCAL_MYSQL_PORT = 3306
 LOCAL_MYSQL_DATABASE = "biterightdb"
@@ -107,14 +107,24 @@ def vibe_search():
     
 
     results = closest_food_profile(final_query)
+
+    flavor_desc_list = []
+    for food, scores in results.items(): 
+        result_flavor_dict = closest_flavors_given_foods(results)
+        result_flavor_set = set(f.lower() for f in result_flavor_dict.keys())
+        top_flavors = list(result_flavor_dict.keys())[:3]
+        flavor_desc = ", ".join(top_flavors[:-1]) + ", and " + top_flavors[-1] if len(top_flavors) >= 3 else ", ".join(top_flavors)
+        flavor_desc_list.append(flavor_desc)
+
     results_list = []
     
     # Convert dictionary items to list of dicts with food and similarity
-    for food, similarity in results.items():
+    for ((food, similarity), flavor_desc) in zip(results.items(), flavor_desc_list):
         if similarity > 0:
             results_list.append({
                 'food': food,
-                'similarity': similarity
+                'similarity': similarity,
+                'flavor_desc': flavor_desc,
             })
     
     # Sort by similarity score in descending order
@@ -127,7 +137,6 @@ def vibe_search():
         "results": top_10, 
         "suggestions": typo_suggestions,
     })  # Return top 10 results
-
 
 @app.route('/search')
 def search():
@@ -209,7 +218,7 @@ def search():
 
     # Create document-term matrix
     doc_term_matrix = create_doc_term(complex_items, vocab, mode="tf")
-    # print("doc term matrix shape: ", doc_term_matrix.shape)
+    print("doc term matrix shape: ", doc_term_matrix.shape)
     doc_term_binary = np.where(doc_term_matrix > 0, 1, 0)
     print("number of documents: ", len(complex_items))
 
@@ -221,14 +230,20 @@ def search():
         print("bool mask is all ones")
 
     filtered_matrix = doc_term_matrix[bool_mask]
-    print("filtered matrix shape:", filtered_matrix.shape)
+    # print("filtered matrix shape:", filtered_matrix.shape)
     indices = np.where(bool_mask)[0]
 
     # Get Jaccard scores
     jaccard_scores = gen_jaccard_sim(query_vector, filtered_matrix)
     
+    if max(jaccard_scores) > 1: 
+        jaccard_scores = jaccard_scores / max(jaccard_scores)
+
     cosine_scores = main_cos(query_vector, filtered_matrix, indices)
     cosine_scores = cosine_scores[indices]
+
+    if max(cosine_scores) > 1: 
+        cosine_scores = cosine_scores/ max(cosine_scores)
 
     jaccard_weight = 0.6 # change this value to test best combination
     combined = jaccard_weight * jaccard_scores + (1 - jaccard_weight) * cosine_scores
