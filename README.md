@@ -1,5 +1,23 @@
 # BiteRight
 
+## Project Description
+
+BiteRight is a food pairing recommendation system. We have two working search options: ingredient search and vibe search. <ins>Ingredient search</ins> allows users to enter a list of foods they are eating (ie. banana and bread) and some flavors they'd like to incorporate into the dish (ie. sweet) to get recommendations on what foods they can additionally incorporate into the meal. In each result are some metrics conveying why some results are ranked more favorably than others. Such metrics include jaccard and cosine scores, trend match, and flavor match. Trend match describes how closely the recommendation matches the opinions and insights of recent comments made by Reddit users. Flavor match describes how closely the dish represents the flavor that was inputted as a query. 
+
+On the other side of the screen is <ins>vibe search</ins>, which allows users to enter some combination of foods and receive foods which have a similar vibe. For example, if I inputted "peach apple banana," the top result is "butternut squash." This result aligns with peaches and apples because it is sugary and fruity. It additionally matches with banana because it is tender. These latent dimensions are displayed to users as well. 
+
+### Technologies Used
+
+Our program uses HTML, CSS, and vanilla JavaScript for the frontend components. We used Python, Flask, and MySQL for the backend. Other core algorithms and technologies include: 
+
+- Binary vector representation, TF-IDF representation, and Term-Document Matrix: Used in our implementation of cosine similarity and in processing and storing scraped data
+- Cosine similarity: Used in combination with Jaccard to find similarity scores between a query and a document
+- Jaccard similarity: Used in combination with Cosine to find similarity scores between a query and a document
+- Edit distance: Used for typo correction to compare non-food words found in the query with our database of food words. We use edit distance to find the closest two matches and give suggestions to the users. We implemented a similar algorithm to provide suggestions for flavors as well.
+- SVD: Used to quantify flavor profiles of a combination of foods for both Ingredient Search and Vibe Search. Originally (deprecated after P04, but still implemented), we also used SVD to search foods along multiple selectable flavor dimensions.
+
+## Instructions to Install and Run
+
 To clone this repository, run `git clone git@github.com:xinrachel30/BiteRight.git <name_of_directory>`
 To enter the project directory, run `cd <name_of_directory>`
 
