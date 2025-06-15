@@ -48,7 +48,7 @@ Make sure the MySQL server is running. Enter the MySQL prompt using `mysql -u <u
 CREATE DATABASE biterightdb;
 USE biterightdb;
 quit;
-mysql -u <username> -p biterightdb < backend/food.sql
+mysql -u <username> -p biterightdb < food-dump.sql
 ```
 Then, in backend/app.py, edit the SQL credentials at the top of the file to match your local MySQL credentials (such as variables LOCAL_MYSQL_USER and LOCAL_MYSQL_USER_PASSWORD) 
 
