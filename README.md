@@ -21,14 +21,14 @@ Our program uses HTML, CSS, and vanilla JavaScript for the frontend components. 
 To clone this repository, run `git clone git@github.com:xinrachel30/BiteRight.git <name_of_directory>`
 To enter the project directory, run `cd <name_of_directory>`
 
-### Setting up MySQL
+### Step 1: Setting up MySQL
 You will need to install MySQL. Here are some tutorials to help with this:
 - Windows: https://blog.devart.com/how-to-install-mysql-on-windows-using-mysql-installer.html
   - Select CUSTOM installation and remove any Visual Studio dependencies
 - Mac: Preferably use homebrew. Your default password will be empty (""). If not, follow this https://www.geeksforgeeks.org/how-to-install-mysql-on-macos/
 - Linux: https://www.geeksforgeeks.org/how-to-install-mysql-on-linux/
 
-### Create and activate a virtual environment in Python
+### Step 2: Create and activate a virtual environment in Python
 
 Run `python3 -m venv <virtual_env_name>` in the project directory to create a new virtual environment.
 
